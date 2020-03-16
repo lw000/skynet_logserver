@@ -102,17 +102,17 @@ function command.STOP()
 end
 
 -- 写数据到REDIS
-function command.WRITEMESSAGE(mainId, subId, data)
+function command.WRITEMESSAGE(mainId, subId, content)
 	if mainId == 0x0004 then
 		if subId == 0x0001 then	-- 更新匹配服务器，匹配队列等待人数，已经成功匹配的次数，匹配时长
-			local server_type = data.server_type -- 服务ID
-			local jsonstr = cjson.encode(data)
+			local server_type = content.server_type -- 服务ID
+			local jsonstr = cjson.encode(content)
 			skynet.error("更新匹配服务器状态", jsonstr)
 			local ok = command.redisdb:hset("match_service", server_type, jsonstr)
 			-- skynet.error("redis:", ok)
 		elseif subId == 0x0002 then
-			local room_id = data.room_id -- 更新房间服务器在线人数
-			local jsonstr = cjson.encode(data)
+			local room_id = content.room_id -- 更新房间服务器在线人数
+			local jsonstr = cjson.encode(content)
 			skynet.error("更新房间服务器在线人数", jsonstr)
 			local ok = command.redisdb:hset("room_service", room_id, jsonstr)
 			-- skynet.error("redis:", ok)

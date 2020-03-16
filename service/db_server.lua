@@ -60,16 +60,14 @@ function command.STOP()
 end
 
 -- 写数据到DB
-function command.WRITEMESSAGE(mainId, subId, data)
+function command.WRITEMESSAGE(mainId, subId, content)
 	if mainId == 0x0005 then
         if subId == 0x0001 then	-- 更新匹配服务器，匹配队列等待人数，已经成功匹配的次数，匹配时长
-            skynet.error("数据库·匹配服务器状态", data)
-			local newdata = cjson.decode(data)
+			local newdata = cjson.decode(content)
             dump(newdata, "数据库·匹配服务器状态")
             -- 写入数据库
         elseif subId == 0x0002 then	-- 更新房间服务器在线人数
-            skynet.error("数据库·匹配服务器状态", data)
-            local newdata = cjson.decode(data)
+            local newdata = cjson.decode(content)
             dump(newdata, "数据库·匹配服务器状态")
             -- 写入数据库
 		end

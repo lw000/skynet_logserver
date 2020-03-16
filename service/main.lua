@@ -45,7 +45,7 @@ skynet.start(
         skynet.error(ret, err)
 
         -- 4. 房间服务器
-        for roomId = 10000, 10000 do
+        for roomId = 10000, 11000 do
             local room_server_id = skynet.newservice("room_server")
             local ret, err = skynet.call(room_server_id, "lua", "start", {
                 room_id = roomId,
