@@ -54,13 +54,12 @@ function command._reportserverInfo ()
             skynet.error("报告·房间服务器在线人数")
 
             local redis_server_id = skynet.localname(".redis_server")
-            local ret = skynet.call(redis_server_id, "lua", "writeMessage", 0x0003, 0x0001,
+            skynet.send(redis_server_id, "lua", "writeMessage", 0x0004, 0x0002,
             {
                 room_id = command.room_id, -- 房间ID
                 server_name = command.server_name, -- 房间名字
                 room_user_count = command.room_user_count, -- 房间在线人数
             })
-            skynet.error("redis writeMessage:", ret)
         end
 
         -- 按分钟·汇报
@@ -84,7 +83,7 @@ local function dispatch()
                 assert(f)
                 skynet.ret(skynet.pack(f(...)))
             else
-                skynet.error(string.format("unknown command %s", tostring(cmd)))
+                skynet.error(string.format("room_server unknown command %s", tostring(cmd)))
             end
         end
     )

@@ -55,7 +55,7 @@ function command._reportserverInfo()
             skynet.error("报告·匹配服务器状态")
             
             local redis_server_id = skynet.localname(".redis_server")
-            local ret = skynet.call(redis_server_id, "lua", "writeMessage", 0x0002, 0x0001,
+            skynet.send(redis_server_id, "lua", "writeMessage", 0x0004, 0x0001,
             {
                 server_id = command.server_id, -- 服务ID
                 server_name = command.server_name,
@@ -63,7 +63,6 @@ function command._reportserverInfo()
                 match_success_count = command.match_success_count, -- 成功匹配的次数
                 match_time = command.match_time, -- 匹配时长
             })
-            skynet.error("redis writeMessage:", ret)
         end
 
         -- 按分钟·汇报
@@ -87,7 +86,7 @@ local function dispatch()
                 assert(f)
                 skynet.ret(skynet.pack(f(...)))
             else
-                skynet.error(string.format("unknown command %s", tostring(cmd)))
+                skynet.error(string.format("matching_server unknown command %s", tostring(cmd)))
             end
         end
     )
