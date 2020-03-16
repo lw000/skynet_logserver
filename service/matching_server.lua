@@ -1,0 +1,97 @@
+package.path = package.path .. ";./service/?.lua;"
+local skynet = require("skynet")
+local service = require("skynet.service")
+require("skynet.manager")
+require("common.export")
+require("config.config")
+
+--[[
+    每秒将服务器状态实时写入到redis；
+    服务器状态信息：匹配队列等待人数，已经成功匹配的次数；匹配时长
+]]
+
+local command = {
+    server_id = SERVICE_CONFIG.MATCH_SERVICE_ID, -- 服务ID
+    server_name = "匹配服务器",
+    match_queue_length = 0, -- 匹配队列等待人数
+    match_success_count = 0, -- 成功匹配的次数
+    match_time = 0, -- 匹配时长
+    running = false, -- 服务器状态
+}
+
+-- 服务启动·接口
+function command.START(conf)
+    assert(conf ~= nil)
+    command.running = true
+    dump(command)
+
+    -- 启动服务器状态汇报
+    skynet.fork(command._reportserverInfo)
+
+    local errmsg = "匹配服务器·启动成功"
+    return 0, errmsg
+end
+
+-- 服务停止·接口
+function command.STOP()
+    command.running = false
+
+    local errmsg = "匹配服务器·启动成功"
+    return 0, errmsg
+end
+
+-- 报告服务器信息
+function command._reportserverInfo()
+    while command.running do
+        skynet.sleep(100)
+
+        local now = os.date("*t")
+        -- dump(now, "系统时间")
+
+        -- 按秒·汇报
+        if math.fmod(now.sec, 1) == 0 then
+            -- skynet.error("系统时间", os.date("%Y-%m-%d %H:%M:%S", os.time(now)))
+
+            skynet.error("报告·匹配服务器状态")
+            
+            local redis_server_id = skynet.localname(".redis_server")
+            local ret = skynet.call(redis_server_id, "lua", "writeMessage", 0x0002, 0x0001,
+            {
+                server_id = command.server_id, -- 服务ID
+                server_name = command.server_name,
+                match_queue_length = command.match_queue_length, -- 匹配队列等待人数
+                match_success_count = command.match_success_count, -- 成功匹配的次数
+                match_time = command.match_time, -- 匹配时长
+            })
+            skynet.error("redis writeMessage:", ret)
+        end
+
+        -- 按分钟·汇报
+        if now.sec == 0 and math.fmod(now.min, 1) == 0 then
+
+        end
+    end
+end
+
+local function dispatch()
+    skynet.dispatch(
+        "lua",
+        function(session, address, cmd, ...)
+            cmd = cmd:upper()
+            if cmd == "START" then
+                local f = command[cmd]
+                assert(f)
+                skynet.ret(skynet.pack(f(...)))
+            elseif cmd == "STOP" then
+                local f = command[cmd]
+                assert(f)
+                skynet.ret(skynet.pack(f(...)))
+            else
+                skynet.error(string.format("unknown command %s", tostring(cmd)))
+            end
+        end
+    )
+    skynet.register(".matching_server")
+end
+
+skynet.start(dispatch)

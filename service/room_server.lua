@@ -1,0 +1,94 @@
+package.path = package.path .. ";./service/?.lua;"
+local skynet = require("skynet")
+local service = require("skynet.service")
+require("skynet.manager")
+require("common.export")
+require("config.config")
+
+--[[
+    实时将自己在线信息实时写入redis；
+    在线信息：当前房间人数
+]]
+
+local command = {
+    server_id = SERVICE_CONFIG.ROOM_SERVICE_ID, -- 服务ID
+    room_id = 0, -- 房间ID
+    room_name = "", -- 房间名字
+    room_user_count = 0, -- 当前房间人数
+    running = false -- 服务器状态
+}
+
+-- 服务启动·接口
+function command.START(conf)
+    assert(conf ~= nil)
+    dump(conf, "conf")
+    command.room_id = conf.room_id
+    command.room_name = conf.room_name
+    command.running = true
+
+    skynet.fork(command._reportserverInfo)
+
+    local errmsg = "房间服务器·启动成功"
+    return 0, errmsg
+end
+
+-- 服务停止·接口
+function command.STOP()
+    command.running = false
+
+    local errmsg = "房间服务器·启动成功"
+    return 0, errmsg
+end
+
+-- 报告服务器信息
+function command._reportserverInfo ()
+    while command.running do
+        skynet.sleep(100)
+
+        local now = os.date("*t")
+        -- dump(now, "系统时间")
+
+        -- 按秒·汇报
+        if math.fmod(now.sec, 1) == 0 then
+            -- skynet.error("系统时间", os.date("%Y-%m-%d %H:%M:%S", os.time(now)))
+            skynet.error("报告·房间服务器在线人数")
+
+            local redis_server_id = skynet.localname(".redis_server")
+            local ret = skynet.call(redis_server_id, "lua", "writeMessage", 0x0003, 0x0001,
+            {
+                room_id = command.room_id, -- 房间ID
+                server_name = command.server_name, -- 房间名字
+                room_user_count = command.room_user_count, -- 房间在线人数
+            })
+            skynet.error("redis writeMessage:", ret)
+        end
+
+        -- 按分钟·汇报
+        if now.sec == 0 and math.fmod(now.min, 1) == 0 then
+
+        end
+    end
+end
+
+local function dispatch()
+    skynet.dispatch(
+        "lua",
+        function(session, address, cmd, ...)
+            cmd = cmd:upper()
+            if cmd == "START" then
+                local f = command[cmd]
+                assert(f)
+                skynet.ret(skynet.pack(f(...)))
+            elseif cmd == "STOP" then
+                local f = command[cmd]
+                assert(f)
+                skynet.ret(skynet.pack(f(...)))
+            else
+                skynet.error(string.format("unknown command %s", tostring(cmd)))
+            end
+        end
+    )
+    skynet.register(".room_server")
+end
+
+skynet.start(dispatch)
