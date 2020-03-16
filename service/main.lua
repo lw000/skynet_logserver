@@ -36,7 +36,7 @@ skynet.start(
        skynet.error(ret, err)
 
         -- 3. 匹配服务器
-        local matching_server_id = skynet.newservice("matching_server")
+        local matching_server_id = skynet.newservice("match_server")
         local ret, err = skynet.call(matching_server_id, "lua", "start", {})
         if ret ~= 0 then
             skynet.error(ret, err)

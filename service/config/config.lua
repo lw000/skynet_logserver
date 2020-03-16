@@ -1,12 +1,12 @@
 require("common.export")
 
-SERVICE_CONFIG = {
-    LOGON_SERVICE_ID = 1,  -- 登录服务
-    MATCH_SERVICE_ID = 2,  -- 匹配服务
-    ROOM_SERVICE_ID = 3, -- 房间服务
-    REDIS_SERVICE_ID = 4, -- REDIS缓存服务
-    DB_SERVICE_ID = 5, -- 数据服务
-    LOGGER_SERVICE_ID = 6, -- 日志服务
+SERVICE_TYPE = {
+    LOGON = 1,  -- 登录服务
+    MATCH = 2,  -- 匹配服务
+    ROOM = 3, -- 房间服务
+    REDIS = 4, -- REDIS缓存服务
+    DB = 5, -- 数据服务
+    LOG = 6, -- 日志服务
 }
 
  -- 服务内部协议
@@ -24,6 +24,6 @@ SERVICE_CMD = {
     },
 }
 
--- dump(SERVICE_CONFIG, "SERVICE_CONFIG")
+-- dump(SERVICE_TYPE, "SERVICE_TYPE")
 
 -- dump(SERVICE_CMD, "SERVICE_CMD")

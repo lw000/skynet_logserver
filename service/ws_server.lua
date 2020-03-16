@@ -7,7 +7,7 @@ require("skynet.manager")
 require("config.config")
 
 local command = {
-    server_id = SERVICE_CONFIG.LOGGER_SERVICE_ID, -- 服务ID
+    server_id = SERVICE_TYPE.LOG, -- 服务ID
     sfd = -1;
     agents = {}
 }

@@ -13,7 +13,7 @@ require("config.config")
 ]]
 
 local command = {
-    server_id = SERVICE_CONFIG.DB_SERVICE_ID, -- 服务ID
+    server_id = SERVICE_TYPE.DB, -- 服务ID
     running = false, -- 服务器状态
     dbconn = nil, -- 数据库连接信息
     conf = {}, -- 数据库配置

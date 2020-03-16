@@ -11,7 +11,7 @@ require("config.config")
 ]]
 
 local command = {
-    server_id = SERVICE_CONFIG.ROOM_SERVICE_ID, -- 服务ID
+    server_id = SERVICE_TYPE.ROOM, -- 服务ID
     room_id = 0, -- 房间ID
     room_name = "", -- 房间名字
     room_user_count = 0, -- 当前房间人数

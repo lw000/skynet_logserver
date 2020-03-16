@@ -71,7 +71,7 @@ local function test_redis()
 end
 
 local command = {
-	server_id = SERVICE_CONFIG.REDIS_SERVICE_ID, -- 服务ID
+	server_id = SERVICE_TYPE.REDIS, -- 服务ID
 	running = false,
 	redisdb = nil,
 }

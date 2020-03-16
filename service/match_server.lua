@@ -11,7 +11,7 @@ require("config.config")
 ]]
 
 local command = {
-    server_id = SERVICE_CONFIG.MATCH_SERVICE_ID, -- 服务ID
+    server_id = SERVICE_TYPE.MATCH, -- 服务ID
     server_name = "匹配服务器",
     match_queue_length = 0, -- 匹配队列等待人数
     match_success_count = 0, -- 成功匹配的次数
@@ -89,7 +89,7 @@ local function dispatch()
             end
         end
     )
-    skynet.register(".matching_server")
+    skynet.register(".match_server")
 end
 
 skynet.start(dispatch)
