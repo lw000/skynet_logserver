@@ -47,7 +47,7 @@ function command.START(conf)
         dump(result, "result")
     end)
 
-    local msg = "DB服务器·启动成功"
+    local msg = "DB服务器·启动"
     return 0, msg
 end
 
@@ -55,7 +55,7 @@ end
 function command.STOP()
     command.running = false
 
-    local msg = "DB服务器·停止成功"
+    local msg = "DB服务器·停止"
     return 0, msg
 end
 
@@ -63,16 +63,18 @@ end
 function command.WRITEMESSAGE(mainId, subId, data)
 	if mainId == 0x0005 then
         if subId == 0x0001 then	-- 更新匹配服务器，匹配队列等待人数，已经成功匹配的次数，匹配时长
+            skynet.error("数据库·匹配服务器状态", data)
 			local newdata = cjson.decode(data)
             dump(newdata, "数据库·匹配服务器状态")
             -- 写入数据库
         elseif subId == 0x0002 then	-- 更新房间服务器在线人数
+            skynet.error("数据库·匹配服务器状态", data)
             local newdata = cjson.decode(data)
             dump(newdata, "数据库·匹配服务器状态")
             -- 写入数据库
 		end
 	else
-		skynet.error("unknow command")
+		skynet.error("unknow message command")
 	end
 	return 0
 end

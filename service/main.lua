@@ -9,11 +9,12 @@ skynet.start(
         -- 1. DB服务器
         local db_server_id = skynet.newservice("db_server")
         local ret, err = skynet.call(db_server_id, "lua", "start", {
-            host = "192.168.110.240",
+            host = "192.168.0.102",
             port = 3306,
             database = "test",
             user = "root",
-            password = "LEvi123!",
+            password_ = "LEvi123!",
+            password = "lwstar",
         })
         if ret ~= 0 then
             skynet.error(ret, err)
@@ -24,7 +25,7 @@ skynet.start(
         -- 2. REDIS服务器
         local redis_server_id = skynet.newservice("redis_server")
         local ret, err = skynet.call(redis_server_id, "lua", "start", {
-            host = "192.168.110.240",
+            host = "127.0.0.1",
             port = 6379,
             db = 0,
         })
@@ -44,16 +45,18 @@ skynet.start(
         skynet.error(ret, err)
 
         -- 4. 房间服务器
-        local room_server_id = skynet.newservice("room_server")
-        local ret, err = skynet.call(room_server_id, "lua", "start", {
-            room_id = 10000,
-            room_name = "炸金花房间",
-        })
-        if ret ~= 0 then
+        for roomId = 10000, 10000 do
+            local room_server_id = skynet.newservice("room_server")
+            local ret, err = skynet.call(room_server_id, "lua", "start", {
+                room_id = roomId,
+                room_name = string.format("%s[%d]", "炸金花房间", roomId),
+            })
+            if ret ~= 0 then
+                skynet.error(ret, err)
+                return
+            end
             skynet.error(ret, err)
-            return
         end
-        skynet.error(ret, err)
 
         -- 5. 主服务
         local ws_server_id = skynet.newservice("ws_server")

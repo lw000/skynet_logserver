@@ -23,12 +23,11 @@ local command = {
 function command.START(conf)
     assert(conf ~= nil)
     command.running = true
-    dump(command)
 
-    -- 启动服务器状态汇报
-    skynet.fork(command._reportserverInfo)
+    -- 上报服务器状态
+    skynet.fork(command._uploadServerInfo)
 
-    local errmsg = "匹配服务器·启动成功"
+    local errmsg = "匹配服务器·启动"
     return 0, errmsg
 end
 
@@ -36,12 +35,12 @@ end
 function command.STOP()
     command.running = false
 
-    local errmsg = "匹配服务器·启动成功"
+    local errmsg = "匹配服务器·停止"
     return 0, errmsg
 end
 
 -- 报告服务器信息
-function command._reportserverInfo()
+function command._uploadServerInfo()
     while command.running do
         skynet.sleep(100)
 
@@ -52,7 +51,7 @@ function command._reportserverInfo()
         if math.fmod(now.sec, 1) == 0 then
             -- skynet.error("系统时间", os.date("%Y-%m-%d %H:%M:%S", os.time(now)))
 
-            skynet.error("报告·匹配服务器状态")
+            skynet.error("上报·匹配服务器状态")
             
             local redis_server_id = skynet.localname(".redis_server")
             skynet.send(redis_server_id, "lua", "writeMessage", 0x0004, 0x0001,

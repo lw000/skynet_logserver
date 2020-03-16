@@ -9,7 +9,7 @@ require("config.config")
 
 local conf = {
 	host = "127.0.0.1" ,
-	port = 6379 ,
+	port = 6379,
 	db = 0
 }
 
@@ -87,9 +87,9 @@ function command.START(conf)
 	command.running = true
 
 	-- 定时同步数据到dbserver
-	skynet.fork(command._savetodbserver)
+	skynet.fork(command._savedToDBserver)
 
-	local errmsg = "REDIS服务器·启动成功"
+	local errmsg = "REDIS服务器·启动"
     return 0, errmsg
 end
 
@@ -97,34 +97,34 @@ function command.STOP()
 	command.running = false
 	command.redisdb:disconnect()
 
-	local errmsg = "REDIS服务器·停止成功"
+	local errmsg = "REDIS服务器·停止"
     return 0, errmsg
 end
 
 -- 写数据到REDIS
 function command.WRITEMESSAGE(mainId, subId, data)
-	if mainId == 0x0004 then	
+	if mainId == 0x0004 then
 		if subId == 0x0001 then	-- 更新匹配服务器，匹配队列等待人数，已经成功匹配的次数，匹配时长
 			local server_id = data.server_id -- 服务ID
-			local jsondata = cjson.encode(data)
-			skynet.error("更新匹配服务器状态", jsondata)
-			local ok = command.redisdb:hset("match_service", server_id, jsondata)
-			skynet.error("redis:", ok)
+			local jsonstr = cjson.encode(data)
+			skynet.error("更新匹配服务器状态", jsonstr)
+			local ok = command.redisdb:hset("match_service", server_id, jsonstr)
+			-- skynet.error("redis:", ok)
 		elseif subId == 0x0002 then
 			local room_id = data.room_id -- 更新房间服务器在线人数
-			local jsondata = cjson.encode(data)
-			skynet.error("更新房间服务器在线人数", jsondata)
-			local ok = command.redisdb:hset("room_service", room_id, jsondata)
-			skynet.error("redis:", ok)
+			local jsonstr = cjson.encode(data)
+			skynet.error("更新房间服务器在线人数", jsonstr)
+			local ok = command.redisdb:hset("room_service", room_id, jsonstr)
+			-- skynet.error("redis:", ok)
 		end
 	else
-		skynet.error("unknow command")
+		skynet.error("unknow message command")
 	end
 	return 0
 end
 
 -- 定时同步数据到数据库
-function command._savetodbserver()
+function command._savedToDBserver()
     while command.running do
         skynet.sleep(100)
 
@@ -133,31 +133,32 @@ function command._savetodbserver()
 
         -- 按秒·汇报
         if math.fmod(now.sec, 30) == 0 then
-            -- skynet.error("系统时间", os.date("%Y-%m-%d %H:%M:%S", os.time(now)))
-
-            skynet.error("存储数据到dbserver")
-			
 			local db_server_id = skynet.localname(".db_server")
 			assert(db_server_id > 0)
 
 			local exists = command.redisdb:exists("match_service")
 			if exists then
 				local r = command.redisdb:hvals("match_service")
-				for k,v in pairs(r) do
-					print(k,v)
+				dump(r, "r")
+				for k, v in pairs(r) do
+					-- local d = cjson.decode(v)
+					-- dump(d, "d")
+					-- print("match_service", k, v)
+					skynet.send(db_server_id, "lua", "writeMessage", 0x0005, 0x0001, v)
 				end
-				skynet.send(db_server_id, "lua", "writeMessage", 0x0005, 0x0001, [[{"a"=1}]])
 			end
 
 			local exists = command.redisdb:exists("room_service")
 			if exists then
 				local r = command.redisdb:hvals("room_service")
-				for k,v in pairs(r) do
-					print(k,v)
+				dump(r, "r")
+				for k, v in pairs(r) do
+					-- local d = cjson.decode(v)
+					-- dump(d, "d")
+					-- print("room_service", k, v)
+					skynet.send(db_server_id, "lua", "writeMessage", 0x0005, 0x0002, v)
 				end
-				skynet.send(db_server_id, "lua", "writeMessage", 0x0005, 0x0002, [[{"a"=1}]])
 			end
-            
         end
 
         -- 按分钟·汇报

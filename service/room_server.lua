@@ -26,22 +26,22 @@ function command.START(conf)
     command.room_name = conf.room_name
     command.running = true
 
-    skynet.fork(command._reportserverInfo)
-
-    local errmsg = "房间服务器·启动成功"
-    return 0, errmsg
+    -- 上报服务器状态
+    skynet.fork(command._uploadServerInfo)
+    
+    return 0, "房间服务器·启动"
 end
 
 -- 服务停止·接口
 function command.STOP()
     command.running = false
 
-    local errmsg = "房间服务器·启动成功"
+    local errmsg = "房间服务器·停止"
     return 0, errmsg
 end
 
--- 报告服务器信息
-function command._reportserverInfo ()
+-- 上报服务器信息
+function command._uploadServerInfo ()
     while command.running do
         skynet.sleep(100)
 
@@ -51,13 +51,13 @@ function command._reportserverInfo ()
         -- 按秒·汇报
         if math.fmod(now.sec, 1) == 0 then
             -- skynet.error("系统时间", os.date("%Y-%m-%d %H:%M:%S", os.time(now)))
-            skynet.error("报告·房间服务器在线人数")
+            skynet.error("上报·房间服务器在线人数")
 
             local redis_server_id = skynet.localname(".redis_server")
             skynet.send(redis_server_id, "lua", "writeMessage", 0x0004, 0x0002,
             {
                 room_id = command.room_id, -- 房间ID
-                server_name = command.server_name, -- 房间名字
+                server_name = command.room_name, -- 房间名字
                 room_user_count = command.room_user_count, -- 房间在线人数
             })
         end
