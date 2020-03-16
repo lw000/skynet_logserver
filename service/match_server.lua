@@ -11,7 +11,7 @@ require("config.config")
 ]]
 
 local command = {
-    server_id = SERVICE_TYPE.MATCH, -- 服务ID
+    server_type = SERVICE_TYPE.MATCH, -- 服务ID
     server_name = "匹配服务器",
     match_queue_length = 0, -- 匹配队列等待人数
     match_success_count = 0, -- 成功匹配的次数
@@ -56,7 +56,7 @@ function command._uploadServerInfo()
             local redis_server_id = skynet.localname(".redis_server")
             skynet.send(redis_server_id, "lua", "writeMessage", 0x0004, 0x0001,
             {
-                server_id = command.server_id, -- 服务ID
+                server_type = command.server_type, -- 服务类型
                 server_name = command.server_name,
                 match_queue_length = command.match_queue_length, -- 匹配队列等待人数
                 match_success_count = command.match_success_count, -- 成功匹配的次数

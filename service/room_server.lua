@@ -11,7 +11,7 @@ require("config.config")
 ]]
 
 local command = {
-    server_id = SERVICE_TYPE.ROOM, -- 服务ID
+    server_type = SERVICE_TYPE.ROOM, -- 服务ID
     room_id = 0, -- 房间ID
     room_name = "", -- 房间名字
     room_user_count = 0, -- 当前房间人数
@@ -56,6 +56,7 @@ function command._uploadServerInfo ()
             local redis_server_id = skynet.localname(".redis_server")
             skynet.send(redis_server_id, "lua", "writeMessage", 0x0004, 0x0002,
             {
+                server_type = command.server_type, -- 服务类型
                 room_id = command.room_id, -- 房间ID
                 server_name = command.room_name, -- 房间名字
                 room_user_count = command.room_user_count, -- 房间在线人数
