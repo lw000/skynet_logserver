@@ -146,7 +146,7 @@ function command._savetodbserver()
 				for k,v in pairs(r) do
 					print(k,v)
 				end
-				skynet.send(db_server_id, "lua", "writeMessage", 0x0005, 0x0001, "")
+				skynet.send(db_server_id, "lua", "writeMessage", 0x0005, 0x0001, [[{"a"=1}]])
 			end
 
 			local exists = command.redisdb:exists("room_service")
@@ -155,7 +155,7 @@ function command._savetodbserver()
 				for k,v in pairs(r) do
 					print(k,v)
 				end
-				skynet.send(db_server_id, "lua", "writeMessage", 0x0005, 0x0002, "")
+				skynet.send(db_server_id, "lua", "writeMessage", 0x0005, 0x0002, [[{"a"=1}]])
 			end
             
         end
