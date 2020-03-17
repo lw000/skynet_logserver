@@ -10,12 +10,13 @@ skynet.start(
         -- 1. DB服务器
         local db_server_id = skynet.newservice("db_server")
         local ret, err = skynet.call(db_server_id, "lua", "start", {
-            host = "127.0.0.1",
+            host_ = "127.0.0.1",
+            host = "192.168.0.102",
             port = 3306,
             database = "test",
             user = "root",
-            password = "LEvi123!",
-            password_ = "lwstar",
+            password_ = "LEvi123!",
+            password = "lwstar",
         })
         if ret ~= 0 then
             skynet.error(ret, err)

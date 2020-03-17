@@ -89,7 +89,7 @@ function command.START(conf)
 	command.redisConn = redis.connect(command.conf)
 	assert(command.redisConn ~= nil)
     if command.redisConn == nil then
-        return -1, "redisserver start fail"
+        return 1, SERVER_NAME.REDIS .. "->fail"
 	end
 	
 	math.randomseed(os.time())
@@ -101,7 +101,7 @@ function command.START(conf)
 	-- 定时同步数据到dbserver
 	skynet.fork(command._syncdbserver)
 
-	local errmsg = "redisserver start"
+	local errmsg =  SERVER_NAME.REDIS .. "->start"
     return 0, errmsg
 end
 
@@ -111,14 +111,14 @@ function command.STOP()
 	command.redisConn:disconnect()
 	command.redisdb = nil
 
-	local errmsg = "redisserver stop"
+	local errmsg = SERVER_NAME.REDIS .. "->stop"
     return 0, errmsg
 end
 
 function command.registerMethods()
     command.methods[0x0001] = {func = redishelper.saveMatchServerInfo, desc="同步匹配服务器数据"}
     command.methods[0x0002] = {func = redishelper.saveRoomServerOnlineCount, desc="更新房间在线用户数"}
-    -- dump(command.methods, "redis_server.command.methods")
+    dump(command.methods, "redis_server.command.methods")
 end
 
 -- 写数据到REDIS
@@ -187,7 +187,7 @@ local function dispatch()
             end
         end
     )
-    skynet.register(".redis_server")
+    skynet.register(SERVER_NAME.REDIS)
 end
 
 skynet.start(dispatch)

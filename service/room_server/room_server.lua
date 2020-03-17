@@ -43,7 +43,7 @@ function command.START(conf)
     -- 上报服务器状态
     skynet.fork(command._uploadServerInfo)
     
-    local errmsg = "roomserver start"
+    local errmsg = SERVER_NAME.ROOM .. "->start"
     return 0, errmsg
 end
 
@@ -51,7 +51,7 @@ end
 function command.STOP()
     command.running = false
 
-    local errmsg = "roomserver stop"
+    local errmsg = SERVER_NAME.ROOM .. "->stop"
     return 0, errmsg
 end
 
@@ -63,13 +63,19 @@ function command._uploadServerInfo ()
         local now = os.date("*t")
         -- dump(now, "系统时间")
 
-        -- 每秒更新房间在线用户信息到日志服务
+        -- 每秒更新房间在线用户数到日志服务
         if math.fmod(now.sec, 1) == 0 then
             -- skynet.error("系统时间", os.date("%Y-%m-%d %H:%M:%S", os.time(now)))
             
+            skynet.error("更新房间在线用户数")
+
             command.room_online_count = math.random(100, 150)
             
-            local logServerId = skynet.localname(".log_server")
+            local logServerId = skynet.localname(SERVER_NAME.LOG)
+            assert(logServerId ~= nil)
+            if logServerId == nil then
+                return
+            end
             skynet.send(logServerId, "lua", "message", LOG_CMD.MDM_LOG, LOG_CMD.SUB_UPDATE_ROOM_ONLINE_COUNT,
             {
                 room_id = command.room_id, -- 房间ID
@@ -81,8 +87,12 @@ function command._uploadServerInfo ()
         -- 每10秒写牌局日志到日志服务器
         -- 每10秒玩家分数日志到日志服务器
         if math.fmod(now.sec, 10) == 0 then
-            local logServerId = skynet.localname(".log_server")
-
+            local logServerId = skynet.localname(SERVER_NAME.LOG)
+            assert(logServerId ~= nil)
+            if logServerId == nil then
+                return
+            end
+            skynet.error("写牌局日志到日志服务器")
             -- 1. 写牌局日志到日志服务器
             local gamelog = {}
             gamelog.gameLogId = os.time() -- 牌局ID
@@ -105,6 +115,7 @@ function command._uploadServerInfo ()
             table.insert(gamelog.cardInfo, {userId= 10003, cards={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'}})
             skynet.send(logServerId, "lua", "message", LOG_CMD.MDM_LOG, LOG_CMD.SUB_GAME_LOG, gamelog)
 
+            skynet.error("写玩家分数日志到日志服务器")
             -- 2. 写玩家分数日志到日志服务器
             local gameScoreChangeLog = {}
             table.insert(gameScoreChangeLog, {userId = 10000, score = 10, changeScore = 60, beforScore = 10000})
@@ -139,7 +150,7 @@ local function dispatch()
             end
         end
     )
-    skynet.register(".room_server")
+    skynet.register(SERVER_NAME.ROOM)
 end
 
 skynet.start(dispatch)

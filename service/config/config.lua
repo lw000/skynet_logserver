@@ -10,6 +10,15 @@ SERVICE_TYPE = {
     LOG = 6,    -- 日志服务
 }
 
+-- 服务名字
+SERVER_NAME = {
+    LOG = ".log_server",
+    DB = ".db_server",
+    REDIS = ".redis_server",
+    MATCH = ".match_server",
+    ROOM = ".room_server",
+}
+
 -- 服务内部协议指令
 
 -- DB服务命令
@@ -41,3 +50,4 @@ LOG_CMD = {
 -- dump(DB_CMD, "DB_CMD")
 -- dump(REDIS_CMD, "REDIS_CMD")
 -- dump(LOG_CMD, "LOG_CMD")
+dump(SERVER_NAME, "SERVER_NAME")

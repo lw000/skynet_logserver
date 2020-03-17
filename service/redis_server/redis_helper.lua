@@ -32,8 +32,11 @@ end
 function redishelper.syncMatchServerInfo(redisConn, content)
     local exists = redisConn:exists(redishelper.match_server_key)
     if exists then
-        local db_server_id = skynet.localname(".db_server")
-        assert(db_server_id > 0)
+        local db_server_id = skynet.localname(SERVER_NAME.DB)
+        assert(db_server_id ~= nil)
+        if db_server_id == nil then
+            return
+        end
         if db_server_id > 0 then
             local results = redisConn:hvals(redishelper.match_server_key)
             for k, v in pairs(results) do
@@ -50,8 +53,11 @@ function redishelper.syncRoomServerOnlineCount(redisConn, content)
     -- 2. 同步房间服务器数据
     local exists = redisConn:exists(redishelper.room_server_key)
     if exists then
-        local db_server_id = skynet.localname(".db_server")
-        assert(db_server_id > 0)
+        local db_server_id = skynet.localname(SERVER_NAME.DB)
+        assert(db_server_id ~= nil)
+        if db_server_id == nil then
+            return
+        end
         local results = redisConn:hvals(redishelper.room_server_key)
         for k, v in pairs(results) do
             skynet.send(db_server_id, "lua", "message", DB_CMD.MDM_DB, DB_CMD.SUB_UPDATE_ROOM_ONLINE_COUNT, v)

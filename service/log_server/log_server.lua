@@ -19,7 +19,7 @@ function command.START()
 
     math.randomseed(os.time())
     
-    local errmsg = "logserver start"
+    local errmsg = SERVER_NAME.LOG .. "->start"
     return 0, errmsg
 end
 
@@ -27,7 +27,7 @@ function command.STOP()
     command.running = false
     command.methods = {}
 
-    local errmsg = "logserver stop"
+    local errmsg = SERVER_NAME.LOG .. "->stop"
     return 0, errmsg
 end
 
@@ -36,11 +36,11 @@ function command.registerMethods()
     command.methods[0x0002] = {func = loghelper.saveRoomServerOnlineCount, desc="更新房间在线用户数"}
     command.methods[0x0003] = {func = loghelper.writeGameLog, desc="写游戏记录"}
     command.methods[0x0004] = {func = loghelper.writeScoreChangeLog, desc="写玩家金币变化"}
-    -- dump(command.methods, "redis_server.command.methods")
+    dump(command.methods, "redis_server.command.methods")
 end
 
 
--- 写数据到REDIS
+-- log服务接受请求
 function command.MESSAGE(mid, sid, content)
 	skynet.error(string.format("log_server mid=%d, sid=%d", mid, sid))
 
@@ -84,7 +84,7 @@ local function dispatch()
             end
         end
     )
-    skynet.register(".log_server")
+    skynet.register(SERVER_NAME.LOG)
 end
 
 skynet.start(dispatch)

@@ -36,7 +36,7 @@ function command.START(conf)
     command.dbconn = database.open(command.conf)
     assert(command.dbconn ~= nil)
     if command.dbconn == nil then
-        return -1, "dbserver start fail"
+        return 1, SERVER_NAME.DB .. "->fail"
     end
 
     math.randomseed(os.time())
@@ -45,7 +45,7 @@ function command.START(conf)
 
     command.registerMethods()
 
-    local errmsg = "dbserver start"
+    local errmsg = SERVER_NAME.DB .. "->start"
     return 0, errmsg
 end
 
@@ -57,7 +57,7 @@ function command.STOP()
     database.close(command.dbconn)
     command.dbconn = nil
 
-    local errmsg = "dbserver stop"
+    local errmsg = SERVER_NAME.DB .. "->stop"
     return 0, errmsg
 end
 
@@ -67,7 +67,7 @@ function command.registerMethods()
     command.methods[0x0002] = {func = dbhelper.syncRoomServerOnlineCount, desc="更新房间在线用户数"}
     command.methods[0x0003] = {func = dbhelper.writeGameLog, desc="写游戏记录"}
     command.methods[0x0004] = {func = dbhelper.writeScoreChangeLog, desc="写玩家金币变化"}
-    -- dump(command.methods, "db_server.command.methods")
+    dump(command.methods, "db_server.command.methods")
 end
 
 -- 写数据到DB
@@ -79,7 +79,9 @@ function command.MESSAGE(mid, sid, content)
     end
 
     -- 查询业务处理函数
-    local method = command.methods[sid]    
+    local method = command.methods[sid]
+    dump(command.methods, "db_server.command.methods")
+      
     assert(method ~= nil)
     if method then
         local ret, err = method.func(command.dbconn, content)
@@ -113,7 +115,7 @@ local function dispatch()
             end
         end
     )
-    skynet.register(".db_server")
+    skynet.register(SERVER_NAME.DB)
 end
 
 skynet.start(dispatch)
