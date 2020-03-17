@@ -14,32 +14,32 @@ db_server.lua       DB·服务
 log_server.lua      日志·服务
 
 代码结构
-.
-├── common                      公共函数
-│   ├── core.lua
-│   ├── dump.lua
-│   ├── export.lua
-│   ├── function.lua
-│   ├── trackback.lua
-│   └── utils.lua
-├── config                      服务配置
-│   └── config.lua
-├── database
-│   └── database.lua            数据库接口
-├── db_server                   DB服务
-│   ├── db_helper.lua
-│   └── db_server.lua
-├── log_server                  日志服务
-│   ├── log_helper.lua
-│   └── log_server.lua
-├── main.lua                    启动入口
-├── match_server                匹配服务
-│   └── match_server.lua
-├── network                     
-│   ├── packet.lua
-│   └── ws.lua
-├── redis_server                REDIS服务
-│   ├── redis_helper.lua
-│   └── redis_server.lua
-└── room_server                 房间服务
-    └── room_server.lua
+# .
+# ├── common                      公共函数
+# │   ├── core.lua
+# │   ├── dump.lua
+# │   ├── export.lua
+# │   ├── function.lua
+# │   ├── trackback.lua
+# │   └── utils.lua
+# ├── config                      服务配置
+# │   └── config.lua
+# ├── database
+# │   └── database.lua            数据库接口
+# ├── db_server                   DB服务
+# │   ├── db_helper.lua
+# │   └── db_server.lua
+# ├── log_server                  日志服务
+# │   ├── log_helper.lua
+# │   └── log_server.lua
+# ├── main.lua                    启动入口
+# ├── match_server                匹配服务
+# │   └── match_server.lua
+# ├── network                     
+# │   ├── packet.lua
+# │   └── ws.lua
+# ├── redis_server                REDIS服务
+# │   ├── redis_helper.lua
+# │   └── redis_server.lua
+# └── room_server                 房间服务
+#     └── room_server.lua
