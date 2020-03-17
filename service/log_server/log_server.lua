@@ -30,17 +30,17 @@ function command.STOP()
 end
 
 function command.registerMethods()
-    command.methods[0x0001] = {func = loghelper.syncMatchServerInfo, desc="同步匹配服务器数据"}
-    command.methods[0x0002] = {func = loghelper.syncRoomServerOnlineCount, desc="更新房间在线用户数"}
+    command.methods[0x0001] = {func = loghelper.saveMatchServerInfo, desc="同步匹配服务器数据"}
+    command.methods[0x0002] = {func = loghelper.saveRoomServerOnlineCount, desc="更新房间在线用户数"}
     command.methods[0x0003] = {func = loghelper.writeGameLog, desc="写游戏记录"}
     command.methods[0x0004] = {func = loghelper.writeScoreChangeLog, desc="写玩家金币变化"}
-    dump(command.methods, "redis_server.command.methods")
+    -- dump(command.methods, "redis_server.command.methods")
 end
 
 
 -- 写数据到REDIS
 function command.MESSAGE(mid, sid, content)
-	skynet.error(string.format("mid=%d, sid=%d", mid, sid))
+	skynet.error(string.format("log_server mid=%d, sid=%d", mid, sid))
 
 	if mid ~= 0x0006 then
 		skynet.error("unknow log_server message command")

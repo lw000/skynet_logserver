@@ -33,7 +33,7 @@ local command = {
 -- 服务启动·接口
 function command.START(conf)
     assert(conf ~= nil)
-    dump(conf, "conf")
+    -- dump(conf, "conf")
     command.room_id = conf.room_id
     command.room_name = conf.room_name
     command.running = true
@@ -70,7 +70,7 @@ function command._uploadServerInfo ()
             command.room_online_count = math.random(100, 150)
             
             local logServerId = skynet.localname(".log_server")
-            skynet.send(logServerId, "lua", "message", 0x0006, 0x0002,
+            skynet.send(logServerId, "lua", "message", LOG_CMD.MDM_LOG, LOG_CMD.SUB_UPDATE_ROOM_ONLINE_COUNT,
             {
                 room_id = command.room_id, -- 房间ID
                 room_name = command.room_name, -- 房间名字
@@ -103,7 +103,7 @@ function command._uploadServerInfo ()
             table.insert(gamelog.cardInfo, {userId= 10001, cards={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'}})
             table.insert(gamelog.cardInfo, {userId= 10002, cards={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'}})
             table.insert(gamelog.cardInfo, {userId= 10003, cards={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'}})
-            skynet.send(logServerId, "lua", "message", 0x0006, 0x0003, gamelog)
+            skynet.send(logServerId, "lua", "message", LOG_CMD.MDM_LOG, LOG_CMD.SUB_GAME_LOG, gamelog)
 
             -- 2. 写玩家分数日志到日志服务器
             local gameScoreChangeLog = {}
@@ -111,7 +111,7 @@ function command._uploadServerInfo ()
             table.insert(gameScoreChangeLog, {userId = 10001, score = 10, changeScore = -10, beforScore = 10000})
             table.insert(gameScoreChangeLog, {userId = 10002, score = 10, changeScore = -20, beforScore = 10000})
             table.insert(gameScoreChangeLog, {userId = 10003, score = 10, changeScore = -30, beforScore = 10000})
-            skynet.send(logServerId, "lua", "message", 0x0006, 0x0004, gameScoreChangeLog)
+            skynet.send(logServerId, "lua", "message", LOG_CMD.MDM_LOG, LOG_CMD.SUB_GAME_SCORE_CHANGE_LOG, gameScoreChangeLog)
         end
 
         -- 按分钟·汇报

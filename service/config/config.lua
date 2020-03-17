@@ -9,32 +9,34 @@ SERVICE_TYPE = {
     LOG = 6,    -- 日志服务
 }
 
- -- 服务内部协议
-SERVICE_CMD = {
-    [0x0004] = {
-        name = "MDM_REDIS",
-        desc = "REDIS服务·主命令",
-        [0x0001] = {name = "SUB_UPLOAD_MATCH_SERVER_INFOS", desc = "更新匹配服务器，匹配队列等待人数，已经成功匹配的次数，匹配时长"},
-        [0x0002] = {name = "SUB_UPDATE_ROOM_ONLINE_COUNT", desc = "更新房间服务器在线人数"},
-    },
-    [0x0005] = {
-        name = "MDM_DB",
-        desc = "数据服务·主命令",
-        [0x0001] = {name = "SUB_UPLOAD_MATCH_SERVER_INFOS", desc = "更新匹配服务器，匹配队列等待人数，已经成功匹配的次数，匹配时长"},
-        [0x0002] = {name = "SUB_UPDATE_ROOM_ONLINE_COUNT", desc = "更新房间服务器在线人数"},
-        [0x0003] = {name = "SUB_UPDATE_GAMELOG", desc = "玩家牌局日志"},
-        [0x0004] = {name = "SUB_UPDATE_GAMESCORE", desc = "玩家分数日志"},
-    },
-    [0x0006] = {
-        name = "MDM_LOG",
-        desc = "日志服务·主命令",
-        [0x0001] = {name = "SUB_UPLOAD_MATCH_SERVER_INFOS", desc = "更新匹配服务器，匹配队列等待人数，已经成功匹配的次数，匹配时长"},
-        [0x0002] = {name = "SUB_UPDATE_ROOM_ONLINE_COUNT", desc = "更新房间服务器在线人数"},
-        [0x0003] = {name = "SUB_UPDATE_GAMELOG", desc = "玩家牌局日志"},
-        [0x0004] = {name = "SUB_UPDATE_GAMESCORE", desc = "玩家分数日志"},
-    },
+-- 服务内部协议指令
+
+-- DB服务命令
+DB_CMD = {
+    MDM_DB = 0x0005,                            -- DB服务·主命令
+    SUB_UPDATE_MATCH_SERVER_INFOS = 0x0001,     -- 更新匹配服务器，匹配队列等待人数，已经成功匹配的次数，匹配时长
+    SUB_UPDATE_ROOM_ONLINE_COUNT = 0x0002,      -- 更新房间服务器在线人数
+    SUB_GAME_LOG = 0x0003,                      -- 玩家牌局日志
+    SUB_GAME_SCORE_CHANGE_LOG = 0x0004,         -- 玩家分数日志
+}
+
+-- REDIS服务命令
+REDIS_CMD = {
+    MDM_REDIS = 0x0004,                            -- REDIS服务·主命令
+    SUB_UPDATE_MATCH_SERVER_INFOS = 0x0001,     -- 更新匹配服务器，匹配队列等待人数，已经成功匹配的次数，匹配时长
+    SUB_UPDATE_ROOM_ONLINE_COUNT = 0x0002,      -- 更新房间服务器在线人数
+}
+
+-- 日志服务命令
+LOG_CMD = {
+    MDM_LOG = 0x0006,                           --日志服务·主命令
+    SUB_UPDATE_MATCH_SERVER_INFOS = 0x0001,     -- 更新匹配服务器，匹配队列等待人数，已经成功匹配的次数，匹配时长
+    SUB_UPDATE_ROOM_ONLINE_COUNT = 0x0002,      -- 更新房间服务器在线人数
+    SUB_GAME_LOG = 0x0003,                      -- 玩家牌局日志
+    SUB_GAME_SCORE_CHANGE_LOG = 0x0004,         -- 玩家分数日志
 }
 
 -- dump(SERVICE_TYPE, "SERVICE_TYPE")
-
--- dump(SERVICE_CMD, "SERVICE_CMD")
+-- dump(DB_CMD, "DB_CMD")
+-- dump(REDIS_CMD, "REDIS_CMD")
+-- dump(LOG_CMD, "LOG_CMD")

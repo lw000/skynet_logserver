@@ -75,12 +75,12 @@ function command.registerMethods()
     command.methods[0x0002] = {func = dbhelper.syncRoomServerOnlineCount, desc="更新房间在线用户数"}
     command.methods[0x0003] = {func = dbhelper.writeGameLog, desc="写游戏记录"}
     command.methods[0x0004] = {func = dbhelper.writeScoreChangeLog, desc="写玩家金币变化"}
-    dump(command.methods, "db_server.command.methods")
+    -- dump(command.methods, "db_server.command.methods")
 end
 
 -- 写数据到DB
 function command.MESSAGE(mid, sid, content)
-    skynet.error(string.format("mid=%d, sid=%d", mid, sid))
+    skynet.error(string.format("db_server mid=%d, sid=%d", mid, sid))
 
     if mid ~= 0x0005 then
         skynet.error("unknow db_server message command")

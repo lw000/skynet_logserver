@@ -57,15 +57,12 @@ function command._uploadServerInfo()
 
         -- 按秒·上报
         if math.fmod(now.sec, 1) == 0 then
-            -- skynet.error("系统时间", os.date("%Y-%m-%d %H:%M:%S", os.time(now)))
-
-            -- skynet.error("上报·匹配服务器状态")
-            
+            -- skynet.error("系统时间", os.date("%Y-%m-%d %H:%M:%S", os.time(now)))            
             command.match_queue_length = math.random(100, 150)
             command.match_success_count = math.random(100, 150)
 
             local logServerId = skynet.localname(".log_server")
-            skynet.send(logServerId, "lua", "message", 0x0006, 0x0001,
+            skynet.send(logServerId, "lua", "message", LOG_CMD.MDM_LOG, LOG_CMD.SUB_UPDATE_MATCH_SERVER_INFOS,
             {
                 server_id = command.server_id, -- 服务ID
                 server_name = command.server_name, -- 服务名字
