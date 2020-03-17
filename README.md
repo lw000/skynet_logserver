@@ -6,6 +6,13 @@
 3. redis服务负责数据存储到redis。
 4. db服务负责数据存储到到mysql。
 
+main.lua            启动入口 
+match_server.lua    匹配·服务
+room_server.lua     房间·服务
+redis_server.lua    REDIS·服务
+db_server.lua       DB·服务
+log_server.lua      日志·服务
+
 代码结构
 .
 ├── common                      公共函数
