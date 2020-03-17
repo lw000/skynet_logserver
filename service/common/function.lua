@@ -22,7 +22,7 @@ function round_four(n)
     return v1
 end
 
-function dateTime(now)
+function datetime(now)
     if now ~= nil then
         return os.date("%Y-%m-%d %H:%M:%S", now)
     else
@@ -66,12 +66,12 @@ function tomorrow(now)
 end
 
 -- 字符串转时间格式
-function string2time(timeString)
-    if type(timeString) ~= "string" then
+function string2time(s)
+    if type(s) ~= "string" then
         error("string2time: timeString is not a string")
         return 0
     end
-    local fun = string.gmatch(timeString, "%d+")
+    local fun = string.gmatch(s, "%d+")
     local y = fun() or 0
     if y == 0 then
         error("timeString is a invalid time string")
@@ -106,12 +106,12 @@ function string2time(timeString)
 end
 
 -- 字符串转日期格式
-function string2date(timeString)
-    if type(timeString) ~= "string" then
+function string2date(s)
+    if type(s) ~= "string" then
         error("string2date: timeString is not a string")
         return 0
     end
-    local fun = string.gmatch(timeString, "%d+")
+    local fun = string.gmatch(s, "%d+")
     local y = fun() or 0
     if y == 0 then
         error("string2date is a invalid date string")

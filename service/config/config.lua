@@ -3,10 +3,10 @@ require("common.export")
 SERVICE_TYPE = {
     LOGON = 1,  -- 登录服务
     MATCH = 2,  -- 匹配服务
-    ROOM = 3, -- 房间服务
-    REDIS = 4, -- REDIS缓存服务
-    DB = 5, -- 数据服务
-    LOG = 6, -- 日志服务
+    ROOM = 3,   -- 房间服务
+    REDIS = 4,  -- REDIS缓存服务
+    DB = 5,     -- 数据服务
+    LOG = 6,    -- 日志服务
 }
 
  -- 服务内部协议
