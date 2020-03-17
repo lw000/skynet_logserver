@@ -48,7 +48,7 @@ function command.MESSAGE(mid, sid, content)
 		skynet.error("unknow log_server message command")
 		return -1
 	end
-
+    
     -- 查询业务处理函数
     local method = command.methods[sid]
     assert(method ~= nil)
