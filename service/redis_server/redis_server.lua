@@ -5,7 +5,6 @@ local skynet = require("skynet")
 local service = require("skynet.service")
 local redis = require("skynet.db.redis")
 local redishelper = require("redis_helper")
-local cjson = require("cjson")
 
 require("skynet.manager")
 require("common.export")
@@ -126,7 +125,7 @@ end
 function command.MESSAGE(mid, sid, content)
 	skynet.error(string.format("redis_server mid=%d, sid=%d", mid, sid))
 
-	if mid ~= 0x0004 then
+	if mid ~= REDIS_CMD.MDM_REDIS then
 		skynet.error("unknow redis_server message command")
 		return -1
 	end

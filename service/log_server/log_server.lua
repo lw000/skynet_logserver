@@ -44,7 +44,7 @@ end
 function command.MESSAGE(mid, sid, content)
 	skynet.error(string.format("log_server mid=%d, sid=%d", mid, sid))
 
-	if mid ~= 0x0006 then
+	if mid ~= LOG_CMD.MDM_LOG then
 		skynet.error("unknow log_server message command")
 		return -1
 	end

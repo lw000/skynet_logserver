@@ -28,7 +28,6 @@ function redishelper.saveRoomServerOnlineCount(redisConn, content)
     -- skynet.error("redis:", ok)
 end
 
-
 -- 同步匹配服务器信息
 function redishelper.syncMatchServerInfo(redisConn, content)
     local exists = redisConn:exists(redishelper.match_server_key)

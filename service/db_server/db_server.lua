@@ -5,7 +5,6 @@ local skynet = require("skynet")
 local service = require("skynet.service")
 local database = require("database.database")
 local dbhelper = require("db_helper")
-local cjson = require("cjson")
 require("skynet.manager")
 require("common.export")
 require("config.config")
@@ -46,15 +45,6 @@ function command.START(conf)
 
     command.registerMethods()
 
-    -- skynet.fork(function()
-    --     local result, err = dbhelper.queryUserInfo(command.dbconn)
-    --     if err ~= nil then
-    --         skynet.error(err)
-    --         return
-    --     end
-    --     dump(result, "result")
-    -- end)
-
     local errmsg = "dbserver start"
     return 0, errmsg
 end
@@ -84,7 +74,7 @@ end
 function command.MESSAGE(mid, sid, content)
     skynet.error(string.format("db_server mid=%d, sid=%d", mid, sid))
 
-    if mid ~= 0x0005 then
+    if mid ~= DB_CMD.MDM_DB then
         skynet.error("unknow db_server message command")
     end
 
