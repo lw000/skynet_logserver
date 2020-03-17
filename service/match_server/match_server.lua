@@ -35,7 +35,7 @@ function command.START(conf)
     -- 上报服务器状态
     skynet.fork(command._uploadServerInfo)
 
-    local errmsg = "匹配服务器·启动"
+    local errmsg = "matchserver start"
     return 0, errmsg
 end
 
@@ -43,7 +43,7 @@ end
 function command.STOP()
     command.running = false
 
-    local errmsg = "匹配服务器·停止"
+    local errmsg = "matchserver stop"
     return 0, errmsg
 end
 
@@ -55,7 +55,7 @@ function command._uploadServerInfo()
         local now = os.date("*t")
         -- dump(now, "系统时间")
 
-        -- 按秒·汇报
+        -- 按秒·上报
         if math.fmod(now.sec, 1) == 0 then
             -- skynet.error("系统时间", os.date("%Y-%m-%d %H:%M:%S", os.time(now)))
 
@@ -64,8 +64,8 @@ function command._uploadServerInfo()
             command.match_queue_length = math.random(100, 150)
             command.match_success_count = math.random(100, 150)
 
-            local redis_server_id = skynet.localname(".redis_server")
-            skynet.send(redis_server_id, "lua", "writeMessage", 0x0004, 0x0001,
+            local logServerId = skynet.localname(".log_server")
+            skynet.send(logServerId, "lua", "message", 0x0006, 0x0001,
             {
                 server_id = command.server_id, -- 服务ID
                 server_name = command.server_name, -- 服务名字
@@ -75,7 +75,7 @@ function command._uploadServerInfo()
             })
         end
 
-        -- 按分钟·汇报
+        -- 按分钟·上报
         if now.sec == 0 and math.fmod(now.min, 1) == 0 then
 
         end

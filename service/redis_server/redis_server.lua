@@ -4,7 +4,9 @@ package.path = package.path .. ";./service/redis_server/?.lua;"
 local skynet = require("skynet")
 local service = require("skynet.service")
 local redis = require("skynet.db.redis")
+local redishelper = require("redis_helper")
 local cjson = require("cjson")
+
 require("skynet.manager")
 require("common.export")
 require("config.config")
@@ -74,63 +76,71 @@ end
 
 local command = {
 	server_type = SERVICE_TYPE.REDIS, -- 服务ID
-	running = false,
-	redisdb = nil,
-	syncinterval = 30
+	running = false,	-- 服务器状态
+	redisConn = nil,	-- redis连接
+	syncinterval = 30, --同步DB时间间隔， 秒·单位
+	conf = {}, -- redis配置
+	methods = {} -- 业务处理接口映射表
 }
 
 function command.START(conf)
-    assert(conf ~= nil)
-	command.redisdb = redis.connect(conf)
-	assert(command.redisdb ~= nil)
-    if command.redisdb == nil then
-        return -1, "REDIS服务器·启动失败"
+	assert(conf ~= nil)
+	command.conf = conf
+	command.methods = {}
+	command.redisConn = redis.connect(command.conf)
+	assert(command.redisConn ~= nil)
+    if command.redisConn == nil then
+        return -1, "redisserver start fail"
 	end
 	
 	command.running = true
 
+	command.registerMethods()
+
 	-- 定时同步数据到dbserver
 	skynet.fork(command._savedToDBserver)
 
-	local errmsg = "REDIS服务器·启动"
+	local errmsg = "redisserver start"
     return 0, errmsg
 end
 
 function command.STOP()
 	command.running = false
-	command.redisdb:disconnect()
+	command.methods = {}
+	command.redisConn:disconnect()
+	command.redisdb = nil
 
-	local errmsg = "REDIS服务器·停止"
+	local errmsg = "redisserver stop"
     return 0, errmsg
 end
 
+function command.registerMethods()
+    command.methods[0x0001] = {func = redishelper.syncMatchServerInfo, desc="同步匹配服务器数据"}
+    command.methods[0x0002] = {func = redishelper.syncRoomServerOnlineCount, desc="更新房间在线用户数"}
+    command.methods[0x0003] = {func = redishelper.writeGameLog, desc="写游戏记录"}
+    command.methods[0x0004] = {func = redishelper.writeScoreChangeLog, desc="写玩家金币变化"}
+    dump(command.methods, "redis_server.command.methods")
+end
+
 -- 写数据到REDIS
-function command.WRITEMESSAGE(mainId, subId, content)
-	if mainId == 0x0004 then
-		if subId == 0x0001 then	-- 更新匹配服务器，匹配队列等待人数，已经成功匹配的次数，匹配时长
-			local server_id = content.server_id -- 服务ID
-			local jsonstr = cjson.encode(content)
-			skynet.error("REDIS·更新匹配服务器状态", jsonstr)
-			local ok = command.redisdb:hset("match_server", server_id, jsonstr)
-			-- skynet.error("redis:", ok)
-		elseif subId == 0x0002 then -- 更新房间服务器在线人数
-			local room_id = content.room_id 
-			local jsonstr = cjson.encode(content)
-			skynet.error("REDIS·更新房间服务器在线人数", jsonstr)
-			local ok = command.redisdb:hset("room_server", room_id, jsonstr)
-			-- skynet.error("redis:", ok)
-		elseif subId == 0x0003 then -- 玩家牌局日志
-			local db_server_id = skynet.localname(".db_server")
-			assert(db_server_id > 0)
-			skynet.send(db_server_id, "lua", "writeMessage", 0x0005, 0x0003, content)
-		elseif subId == 0x0004 then -- 玩家分数日志
-			local db_server_id = skynet.localname(".db_server")
-			assert(db_server_id > 0)
-			skynet.send(db_server_id, "lua", "writeMessage", 0x0005, 0x0004, content)
-		end
-	else
-		skynet.error("unknow message command")
+function command.MESSAGE(mid, sid, content)
+	skynet.error(string.format("mid=%d, sid=%d", mid, sid))
+
+	if mid ~= 0x0004 then
+		skynet.error("unknow redis_server message command")
+		return -1
 	end
+
+    -- 查询业务处理函数
+    local method = command.methods[sid]
+    assert(method ~= nil)
+    if method then
+        local ret, err = method.func(command.redisConn, content)
+        if err ~= nil then
+            skynet.error(err)
+            return 1
+        end
+    end
 	return 0
 end
 
@@ -148,33 +158,26 @@ function command._savedToDBserver()
 			assert(db_server_id > 0)
 
 			-- 同步匹配服务器数据
-			local exists = command.redisdb:exists("match_server")
+			local exists = command.redisConn:exists("match_server")
 			if exists then
-				local results = command.redisdb:hvals("match_server")
-				-- dump(results, "results")
+				local results = command.redisConn:hvals("match_server")
 				for k, v in pairs(results) do
-					skynet.send(db_server_id, "lua", "writeMessage", 0x0005, 0x0001, v)
+					skynet.send(db_server_id, "lua", "message", 0x0005, 0x0001, v)
 				end
 			else
 				skynet.error("redis key (match_server) not found")
 			end
 
 			-- 同步房间服务器数据
-			local exists = command.redisdb:exists("room_server")
+			local exists = command.redisConn:exists("room_server")
 			if exists then
-				local results = command.redisdb:hvals("room_server")
-				-- dump(results, "results")
+				local results = command.redisConn:hvals("room_server")
 				for k, v in pairs(results) do
-					skynet.send(db_server_id, "lua", "writeMessage", 0x0005, 0x0002, v)
+					skynet.send(db_server_id, "lua", "message", 0x0005, 0x0002, v)
 				end
 			else
 				skynet.error("redis key (room_server) not found")
 			end
-        end
-
-        -- 按分钟·汇报
-        if now.sec == 0 and math.fmod(now.min, 1) == 0 then
-
         end
     end
 end
@@ -192,7 +195,7 @@ local function dispatch()
                 local f = command[cmd]
                 assert(f)
 				skynet.ret(skynet.pack(f(...)))
-			elseif cmd == "WRITEMESSAGE" then
+			elseif cmd == "MESSAGE" then
                 local f = command[cmd]
                 assert(f)
 				skynet.ret(skynet.pack(f(...)))

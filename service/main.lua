@@ -50,30 +50,24 @@ skynet.start(
 
         -- 4. 房间服务器
         local room_server_id = skynet.newservice("room_server")
-            local ret, err = skynet.call(room_server_id, "lua", "start", {
-                room_id = 10000,
-                room_name = string.format("%s[%d]", "房间服务器", 10000),
-            })
-            if ret ~= 0 then
-                skynet.error(ret, err)
-                return
-            end
-            skynet.error(ret, err)
-
-        -- 5. 主服务
-        local ws_server_id = skynet.newservice("ws_server")
-        local ret, err = skynet.call(ws_server_id, "lua", "start", 8080)
+        local ret, err = skynet.call(room_server_id, "lua", "start", {
+            room_id = 10000,
+            room_name = string.format("%s[%d]", "房间服务器", 10000),
+        })
         if ret ~= 0 then
             skynet.error(ret, err)
             return
         end
         skynet.error(ret, err)
 
-        -- for i = 0, 0 do
-        --     skynet.sleep(10)
-        --     local client_id = skynet.newservice("ws_client")
-        --     skynet.send(client_id, "lua", "start", "ws", "127.0.0.1:8080")
-        -- end
+        -- 5. 主服务
+        local log_server_id = skynet.newservice("log_server")
+        local ret, err = skynet.call(log_server_id, "lua", "start")
+        if ret ~= 0 then
+            skynet.error(ret, err)
+            return
+        end
+        skynet.error(ret, err)
 
         skynet.exit()
     end

@@ -4,7 +4,7 @@ package.path = package.path .. ";./service/db_server/?.lua;"
 local skynet = require("skynet")
 local service = require("skynet.service")
 local database = require("database.database")
-local dbhelper = require("dbhelper")
+local dbhelper = require("db_helper")
 local cjson = require("cjson")
 require("skynet.manager")
 require("common.export")
@@ -17,8 +17,9 @@ require("config.config")
 local command = {
     server_type = SERVICE_TYPE.DB, -- 服务ID
     running = false, -- 服务器状态
-    dbconn = nil, -- 数据库连接信息
+    dbconn = nil, -- db连接
     conf = {}, -- 数据库配置
+    methods = {}    -- 业务处理接口映射表
 }
 
 -- 服务启动·接口
@@ -27,125 +28,74 @@ local command = {
     code=0成功，非零失败
     err 错误消息
 ]]
+
 function command.START(conf)
     assert(conf ~= nil)
     -- dump(conf, "conf")
-
+    command.methods = {}
     command.conf = conf
     command.dbconn = database.open(command.conf)
     assert(command.dbconn ~= nil)
     if command.dbconn == nil then
-        return -1, "DB服务器·启动失败"
+        return -1, "dbserver start fail"
     end
 
     command.running = true
 
-    skynet.fork(function()
-        local result, err = dbhelper.queryUserInfo(command.dbconn)
-        if err ~= nil then
-            skynet.error(err)
-            return
-        end
-        dump(result, "result")
-    end)
+    command.registerMethods()
 
-    local errmsg = "DB服务器·启动"
+    -- skynet.fork(function()
+    --     local result, err = dbhelper.queryUserInfo(command.dbconn)
+    --     if err ~= nil then
+    --         skynet.error(err)
+    --         return
+    --     end
+    --     dump(result, "result")
+    -- end)
+
+    local errmsg = "dbserver start"
     return 0, errmsg
 end
 
 -- 服务停止·接口
 function command.STOP()
+    command.methods = {}
     command.running = false
-    database.close(command.dbconn)
 
-    local errmsg = "DB服务器·停止"
+    database.close(command.dbconn)
+    command.dbconn = nil
+
+    local errmsg = "dbserver stop"
     return 0, errmsg
 end
 
+-- 注册业务处理接口
+function command.registerMethods()
+    command.methods[0x0001] = {func = dbhelper.syncMatchServerInfo, desc="同步匹配服务器数据"}
+    command.methods[0x0002] = {func = dbhelper.syncRoomServerOnlineCount, desc="更新房间在线用户数"}
+    command.methods[0x0003] = {func = dbhelper.writeGameLog, desc="写游戏记录"}
+    command.methods[0x0004] = {func = dbhelper.writeScoreChangeLog, desc="写玩家金币变化"}
+    dump(command.methods, "db_server.command.methods")
+end
+
 -- 写数据到DB
-function command.WRITEMESSAGE(mainId, subId, content)
-	if mainId == 0x0005 then
-        if subId == 0x0001 then	-- 更新匹配服务器，匹配队列等待人数，已经成功匹配的次数，匹配时长
-			local data = cjson.decode(content)
-            dump(data, "数据库·匹配服务器状态")
+function command.MESSAGE(mid, sid, content)
+    skynet.error(string.format("mid=%d, sid=%d", mid, sid))
 
-            local sql = [[INSERT INTO matchServerInfo (serverId, serverName, matchQueueLength, matchSuccessCount, matchDuration, updateTime)
-                VALUES (?,?,?,?,?,?) 
-                ON DUPLICATE KEY UPDATE matchQueueLength= ?, matchSuccessCount= ?, matchDuration= ?, updateTime= ?;]]
-            local now = os.date("%Y-%m-%d %H:%M:%S", os.time())
-            local result, err = database.execute(command.dbconn, sql,
-                data.server_id,
-                data.server_name,
-                data.match_queue_length,
-                data.match_success_count,
-                data.match_time,
-                now,
-                data.match_queue_length,
-                data.match_success_count,
-                data.match_time,
-                now)
-            if err ~= nil then
-                skynet.error(err)
-                return
-            end
+    if mid ~= 0x0005 then
+        skynet.error("unknow db_server message command")
+    end
 
-            -- 写入数据库
-        elseif subId == 0x0002 then	-- 更新房间服务器在线人数
-            local data = cjson.decode(content)
-            dump(data, "数据库·更新房间服务器在线人数")
-            
-            -- 写入数据库
-            local sql = [[INSERT INTO roomServerInfo (roomId, roomName, roomOnlineCount, updateTime)
-                VALUES (?,?,?,?) 
-                ON DUPLICATE KEY UPDATE roomOnlineCount= ?, updateTime= ?;]]
-            local now = os.date("%Y-%m-%d %H:%M:%S", os.time())
-            local result, err = database.execute(command.dbconn, sql,
-                data.room_id,
-                data.room_name,
-                data.room_online_count,
-                now,
-                data.room_online_count,
-                now)
-            if err ~= nil then
-                skynet.error(err)
-                return
-            end
-        elseif subId == 0x0003 then -- 玩家牌局日志
-            dump(content, "数据库·玩家牌局日志")
-            local gameLogId = content.gameLogId
-            local betScore = cjson.encode(content.betScore)
-            local resultScore = cjson.encode(content.resultScore)
-            local cardInfo = cjson.encode(content.cardInfo)
-        
-            -- 写入数据库
-            local sql = [[INSERT INTO gameLog (gameLogId,betScore,resultScore,cardInfo,updateTime) VALUES (?,?,?,?,?);]]
-            local now = os.date("%Y-%m-%d %H:%M:%S", os.time())
-            local result, err = database.execute(command.dbconn, sql, gameLogId, betScore, resultScore, cardInfo, now)
-            if err ~= nil then
-                skynet.error(err)
-                return
-            end
-        elseif subId == 0x0004 then -- 玩家分数日志
-            dump(content, "数据库·玩家分数日志")
-            
-            -- 写入数据库
-            local sql = [[INSERT INTO gameScoreChangeLog (userId,score,changeScore,beforeScore,updateTime) VALUES (?,?,?,?,?);]]
-            local now = os.date("%Y-%m-%d %H:%M:%S", os.time())
-            for _, v in pairs(content) do
-                local userId = v.userId
-                local score = v.score
-                local changeScore = v.changeScore
-                local beforScore = v.beforScore
-                local result, err = database.execute(command.dbconn, sql, userId, score, changeScore, beforScore, now)
-                if err ~= nil then
-                    skynet.error(err)
-                    return
-                end
-            end
-		end
-	else
-		skynet.error("unknow message command")
-	end
+    -- 查询业务处理函数
+    local method = command.methods[sid]    
+    assert(method ~= nil)
+    if method then
+        local ret, err = method.func(command.dbconn, content)
+        if err ~= nil then
+            skynet.error(err)
+            return 1
+        end
+    end
 	return 0
 end
 
@@ -162,7 +112,7 @@ local function dispatch()
                 local f = command[cmd]
                 assert(f)
                 skynet.ret(skynet.pack(f(...)))
-            elseif cmd == "WRITEMESSAGE" then
+            elseif cmd == "MESSAGE" then
                 local f = command[cmd]
                 assert(f)
 				skynet.ret(skynet.pack(f(...)))
