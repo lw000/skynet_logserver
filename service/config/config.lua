@@ -1,5 +1,6 @@
 require("common.export")
 
+-- 服务器ID分配
 SERVICE_TYPE = {
     LOGON = 1,  -- 登录服务
     MATCH = 2,  -- 匹配服务
@@ -22,7 +23,7 @@ DB_CMD = {
 
 -- REDIS服务命令
 REDIS_CMD = {
-    MDM_REDIS = 0x0004,                            -- REDIS服务·主命令
+    MDM_REDIS = 0x0004,                         -- REDIS服务·主命令
     SUB_UPDATE_MATCH_SERVER_INFOS = 0x0001,     -- 更新匹配服务器，匹配队列等待人数，已经成功匹配的次数，匹配时长
     SUB_UPDATE_ROOM_ONLINE_COUNT = 0x0002,      -- 更新房间服务器在线人数
 }

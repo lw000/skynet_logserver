@@ -17,6 +17,8 @@ function command.START()
     command.running = true
     command.registerMethods()
 
+    math.randomseed(os.time())
+    
     local errmsg = "logserver start"
     return 0, errmsg
 end

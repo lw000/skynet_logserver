@@ -23,11 +23,11 @@ require("config.config")
 -- [{"userId":1000,"cards":["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"]},{"userId":1000,"cards":["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"]},{"userId":1000,"cards":["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"]},{"userId":1000,"cards":["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"]},{"userId":1000,"cards":["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"]},{"userId":1000,"cards":["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"]}]
 
 local command = {
-    server_type = SERVICE_TYPE.ROOM, -- 服务ID
-    room_id = 0, -- 房间ID
-    room_name = "", -- 房间名字
-    room_online_count = 0, -- 当前房间在线人数
-    running = false -- 服务器状态
+    server_type = SERVICE_TYPE.ROOM,    -- 服务ID
+    room_id = 0,                        -- 房间ID
+    room_name = "",                     -- 房间名字
+    room_online_count = 0,              -- 当前房间在线人数
+    running = false                     -- 服务器状态
 }
 
 -- 服务启动·接口

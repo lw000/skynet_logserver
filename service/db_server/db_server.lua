@@ -15,11 +15,11 @@ require("config.config")
 ]]
 
 local command = {
-    server_type = SERVICE_TYPE.DB, -- 服务ID
-    running = false, -- 服务器状态
-    dbconn = nil, -- db连接
-    conf = {}, -- 数据库配置
-    methods = {}    -- 业务处理接口映射表
+    server_type = SERVICE_TYPE.DB,  -- 服务ID
+    running = false,                -- 服务器状态
+    dbconn = nil,                   -- db连接
+    conf = {},                      -- 数据库配置
+    methods = {}                    -- 业务处理接口映射表
 }
 
 -- 服务启动·接口
@@ -39,6 +39,8 @@ function command.START(conf)
     if command.dbconn == nil then
         return -1, "dbserver start fail"
     end
+
+    math.randomseed(os.time())
 
     command.running = true
 

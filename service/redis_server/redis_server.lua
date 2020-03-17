@@ -75,12 +75,12 @@ local function test_redis()
 end
 
 local command = {
-	server_type = SERVICE_TYPE.REDIS, -- 服务ID
-	running = false,	-- 服务器状态
-	redisConn = nil,	-- redis连接
-	syncinterval = 30, --同步DB时间间隔， 秒·单位
-	conf = {}, -- redis配置
-	methods = {} -- 业务处理接口映射表
+	server_type = SERVICE_TYPE.REDIS, 	-- 服务ID
+	running = false,					-- 服务器状态
+	redisConn = nil,					-- redis连接
+	syncinterval = 30, 					-- 同步DB时间间隔，秒·单位
+	conf = {}, 							-- redis配置
+	methods = {} 						-- 业务处理接口映射表
 }
 
 function command.START(conf)
@@ -92,6 +92,8 @@ function command.START(conf)
     if command.redisConn == nil then
         return -1, "redisserver start fail"
 	end
+	
+	math.randomseed(os.time())
 	
 	command.running = true
 

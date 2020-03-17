@@ -12,13 +12,13 @@ require("config.config")
 ]]
 
 local command = {
-    server_type = SERVICE_TYPE.MATCH, -- 服务ID
-    server_id = -1,
-    server_name = "",
-    match_queue_length = 0, -- 匹配队列等待人数
-    match_success_count = 0, -- 成功匹配的次数
-    match_time = 0, -- 匹配时长
-    running = false, -- 服务器状态
+    server_type = SERVICE_TYPE.MATCH,   -- 服务类型
+    server_id = -1,                     -- 服务ID
+    server_name = "",                   -- 服务名称
+    match_queue_length = 0,             -- 匹配队列等待人数
+    match_success_count = 0,            -- 成功匹配的次数
+    match_time = 0,                     -- 匹配时长
+    running = false,                    -- 服务器状态
 }
 
 -- 服务启动·接口
@@ -30,6 +30,7 @@ function command.START(conf)
     assert(command.server_name ~= nil or command.server_name ~= "")
 
     command.running = true
+    
     math.randomseed(os.time())
 
     -- 上报服务器状态
