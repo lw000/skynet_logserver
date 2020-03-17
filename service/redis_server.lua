@@ -74,6 +74,7 @@ local command = {
 	server_type = SERVICE_TYPE.REDIS, -- 服务ID
 	running = false,
 	redisdb = nil,
+	syncinterval = 30
 }
 
 function command.START(conf)
@@ -107,15 +108,23 @@ function command.WRITEMESSAGE(mainId, subId, content)
 		if subId == 0x0001 then	-- 更新匹配服务器，匹配队列等待人数，已经成功匹配的次数，匹配时长
 			local server_id = content.server_id -- 服务ID
 			local jsonstr = cjson.encode(content)
-			-- skynet.error("更新匹配服务器状态", jsonstr)
+			skynet.error("REDIS·更新匹配服务器状态", jsonstr)
 			local ok = command.redisdb:hset("match_server", server_id, jsonstr)
 			-- skynet.error("redis:", ok)
-		elseif subId == 0x0002 then
-			local room_id = content.room_id -- 更新房间服务器在线人数
+		elseif subId == 0x0002 then -- 更新房间服务器在线人数
+			local room_id = content.room_id 
 			local jsonstr = cjson.encode(content)
-			-- skynet.error("更新房间服务器在线人数", jsonstr)
+			skynet.error("REDIS·更新房间服务器在线人数", jsonstr)
 			local ok = command.redisdb:hset("room_server", room_id, jsonstr)
 			-- skynet.error("redis:", ok)
+		elseif subId == 0x0003 then -- 玩家牌局日志
+			local db_server_id = skynet.localname(".db_server")
+			assert(db_server_id > 0)
+			skynet.send(db_server_id, "lua", "writeMessage", 0x0005, 0x0003, content)
+		elseif subId == 0x0004 then -- 玩家分数日志
+			local db_server_id = skynet.localname(".db_server")
+			assert(db_server_id > 0)
+			skynet.send(db_server_id, "lua", "writeMessage", 0x0005, 0x0004, content)
 		end
 	else
 		skynet.error("unknow message command")
@@ -131,11 +140,12 @@ function command._savedToDBserver()
         local now = os.date("*t")
         -- dump(now, "系统时间")
 
-        -- 按秒·汇报
-        if math.fmod(now.sec, 10) == 0 then
+        -- 按秒·同步数据到DB
+        if math.fmod(now.sec, command.syncinterval) == 0 then
 			local db_server_id = skynet.localname(".db_server")
 			assert(db_server_id > 0)
 
+			-- 同步匹配服务器数据
 			local exists = command.redisdb:exists("match_server")
 			if exists then
 				local results = command.redisdb:hvals("match_server")
@@ -147,6 +157,7 @@ function command._savedToDBserver()
 				skynet.error("redis key (match_server) not found")
 			end
 
+			-- 同步房间服务器数据
 			local exists = command.redisdb:exists("room_server")
 			if exists then
 				local results = command.redisdb:hvals("room_server")

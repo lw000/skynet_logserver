@@ -33,10 +33,10 @@ skynet.start(
             skynet.error(ret, err)
             return
         end
-       skynet.error(ret, err)
+        skynet.error(ret, err)
 
         -- 3. 匹配服务器
-        for serverId = 10000, 10010 do
+        for serverId = 10000, 10000 do
             local matching_server_id = skynet.newservice("match_server")
             local ret, err = skynet.call(matching_server_id, "lua", "start", {
                 server_id = serverId,
@@ -50,7 +50,7 @@ skynet.start(
         end
 
         -- 4. 房间服务器
-        for roomId = 10000, 10500 do
+        for roomId = 10000, 10000 do
             local room_server_id = skynet.newservice("room_server")
             local ret, err = skynet.call(room_server_id, "lua", "start", {
                 room_id = roomId,

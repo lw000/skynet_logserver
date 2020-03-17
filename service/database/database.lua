@@ -8,7 +8,7 @@ local function on_connect(db)
 end
 
 -- 打开数据库连接
-function database.mysql_open(conf)
+function database.open(conf)
     local db =
         mysql.connect(
         {
@@ -33,13 +33,13 @@ function database.mysql_open(conf)
 end
 
 -- 关闭数据库连接
-function database.mysql_close(dbconn)
+function database.close(dbconn)
     if dbconn then
         dbconn:disconnect()
     end
 end
 
-function database.mysql_query(dbconn, sql)
+function database.query(dbconn, sql)
     local results = dbconn:query(sql)
     if results.err then
         skynet.error("error: sql execute, " .. results.err)
@@ -48,7 +48,7 @@ function database.mysql_query(dbconn, sql)
     return results
 end
 
-function database.mysql_execute(dbconn, sql, ...)
+function database.execute(dbconn, sql, ...)
     local stmt = dbconn:prepare(sql)
     if stmt.err then
         skynet.error("error: sql prepare, " .. stmt.err)
@@ -62,6 +62,5 @@ function database.mysql_execute(dbconn, sql, ...)
     end
     return results
 end
-
 
 return database
