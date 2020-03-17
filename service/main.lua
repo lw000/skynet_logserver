@@ -4,6 +4,7 @@ require("common.export")
 
 skynet.start(
     function()
+        -- 0. DEBUG服务
         skynet.newservice("debug_console", "8000")
         
         -- 1. DB服务器
@@ -36,32 +37,28 @@ skynet.start(
         skynet.error(ret, err)
 
         -- 3. 匹配服务器
-        for serverId = 10000, 10000 do
-            local matching_server_id = skynet.newservice("match_server")
-            local ret, err = skynet.call(matching_server_id, "lua", "start", {
-                server_id = serverId,
-                server_name = string.format("%s[%d]", "匹配服务器", serverId),
-            })
-            if ret ~= 0 then
-                skynet.error(ret, err)
-                return
-            end
+        local matching_server_id = skynet.newservice("match_server")
+        local ret, err = skynet.call(matching_server_id, "lua", "start", {
+            server_id = 1,
+            server_name = string.format("%s[%d]", "匹配服务器", 1),
+        })
+        if ret ~= 0 then
             skynet.error(ret, err)
+            return
         end
+        skynet.error(ret, err)
 
         -- 4. 房间服务器
-        for roomId = 10000, 10000 do
-            local room_server_id = skynet.newservice("room_server")
+        local room_server_id = skynet.newservice("room_server")
             local ret, err = skynet.call(room_server_id, "lua", "start", {
-                room_id = roomId,
-                room_name = string.format("%s[%d]", "房间服务器", roomId),
+                room_id = 10000,
+                room_name = string.format("%s[%d]", "房间服务器", 10000),
             })
             if ret ~= 0 then
                 skynet.error(ret, err)
                 return
             end
             skynet.error(ret, err)
-        end
 
         -- 5. 主服务
         local ws_server_id = skynet.newservice("ws_server")
