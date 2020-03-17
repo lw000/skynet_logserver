@@ -1,4 +1,5 @@
 package.path = package.path .. ";./service/?.lua;"
+package.path = package.path .. ";./service/match_server/?.lua;"
 local skynet = require("skynet")
 local service = require("skynet.service")
 require("skynet.manager")

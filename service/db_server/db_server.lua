@@ -1,7 +1,10 @@
 package.path = package.path .. ";./service/?.lua;"
+package.path = package.path .. ";./service/db_server/?.lua;"
+
 local skynet = require("skynet")
 local service = require("skynet.service")
 local database = require("database.database")
+local dbhelper = require("dbhelper")
 local cjson = require("cjson")
 require("skynet.manager")
 require("common.export")
@@ -37,15 +40,14 @@ function command.START(conf)
 
     command.running = true
 
-    -- skynet.fork(function()
-    --     local sql = [[select * from user]]
-    --     local result, err = database.query(command.dbconn, sql)
-    --     if err ~= nil then
-    --         skynet.error(err)
-    --         return
-    --     end
-    --     dump(result, "result")
-    -- end)
+    skynet.fork(function()
+        local result, err = dbhelper.queryUserInfo(command.dbconn)
+        if err ~= nil then
+            skynet.error(err)
+            return
+        end
+        dump(result, "result")
+    end)
 
     local errmsg = "DB服务器·启动"
     return 0, errmsg

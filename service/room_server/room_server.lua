@@ -1,4 +1,6 @@
 package.path = package.path .. ";./service/?.lua;"
+package.path = package.path .. ";./service/room_server/?.lua;"
+
 local skynet = require("skynet")
 local service = require("skynet.service")
 require("skynet.manager")
@@ -63,7 +65,6 @@ function command._uploadServerInfo ()
         -- 每秒更新房间在线用户信息到日志服务
         if math.fmod(now.sec, 1) == 0 then
             -- skynet.error("系统时间", os.date("%Y-%m-%d %H:%M:%S", os.time(now)))
-            -- skynet.error("上报·房间服务器在线人数")
             
             command.room_online_count = math.random(100, 150)
             
