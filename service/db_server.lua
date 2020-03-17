@@ -63,13 +63,50 @@ end
 function command.WRITEMESSAGE(mainId, subId, content)
 	if mainId == 0x0005 then
         if subId == 0x0001 then	-- 更新匹配服务器，匹配队列等待人数，已经成功匹配的次数，匹配时长
-			local newdata = cjson.decode(content)
-            dump(newdata, "数据库·匹配服务器状态")
+			local data = cjson.decode(content)
+            -- dump(data, "数据库·匹配服务器状态")
+
+            local sql = [[INSERT INTO matchServerInfo (serverId, serverName, matchQueueLength, matchSuccessCount, matchDuration, updateTime)
+                VALUES (?,?,?,?,?,?) 
+                ON DUPLICATE KEY UPDATE matchQueueLength= ?, matchSuccessCount= ?, matchDuration= ?, updateTime= ?;]]
+            local now = os.date("%Y-%m-%d %H:%M:%S", os.time())
+            local result, err = database.mysql_execute(command.dbconn, sql,
+                data.server_id,
+                data.server_name,
+                data.match_queue_length,
+                data.match_success_count,
+                data.match_time,
+                now,
+                data.match_queue_length,
+                data.match_success_count,
+                data.match_time,
+                now)
+            if err ~= nil then
+                skynet.error(err)
+                return
+            end
+
             -- 写入数据库
         elseif subId == 0x0002 then	-- 更新房间服务器在线人数
-            local newdata = cjson.decode(content)
-            dump(newdata, "数据库·匹配服务器状态")
+            local data = cjson.decode(content)
+            -- dump(data, "数据库·更新房间服务器在线人数")
+            
             -- 写入数据库
+            local sql = [[INSERT INTO roomServerInfo (roomId, roomName, roomOnlineCount, updateTime)
+                VALUES (?,?,?,?) 
+                ON DUPLICATE KEY UPDATE roomOnlineCount= ?, updateTime= ?;]]
+            local now = os.date("%Y-%m-%d %H:%M:%S", os.time())
+            local result, err = database.mysql_execute(command.dbconn, sql,
+                data.room_id,
+                data.room_name,
+                data.room_online_count,
+                now,
+                data.room_online_count,
+                now)
+            if err ~= nil then
+                skynet.error(err)
+                return
+            end
 		end
 	else
 		skynet.error("unknow message command")

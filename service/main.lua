@@ -9,12 +9,12 @@ skynet.start(
         -- 1. DB服务器
         local db_server_id = skynet.newservice("db_server")
         local ret, err = skynet.call(db_server_id, "lua", "start", {
-            host = "192.168.0.102",
+            host = "127.0.0.1",
             port = 3306,
             database = "test",
             user = "root",
-            password_ = "LEvi123!",
-            password = "lwstar",
+            password = "LEvi123!",
+            password_ = "lwstar",
         })
         if ret ~= 0 then
             skynet.error(ret, err)
@@ -36,20 +36,25 @@ skynet.start(
        skynet.error(ret, err)
 
         -- 3. 匹配服务器
-        local matching_server_id = skynet.newservice("match_server")
-        local ret, err = skynet.call(matching_server_id, "lua", "start", {})
-        if ret ~= 0 then
+        for serverId = 10000, 10010 do
+            local matching_server_id = skynet.newservice("match_server")
+            local ret, err = skynet.call(matching_server_id, "lua", "start", {
+                server_id = serverId,
+                server_name = string.format("%s[%d]", "匹配服务器", serverId),
+            })
+            if ret ~= 0 then
+                skynet.error(ret, err)
+                return
+            end
             skynet.error(ret, err)
-            return
         end
-        skynet.error(ret, err)
 
         -- 4. 房间服务器
-        for roomId = 10000, 11000 do
+        for roomId = 10000, 10500 do
             local room_server_id = skynet.newservice("room_server")
             local ret, err = skynet.call(room_server_id, "lua", "start", {
                 room_id = roomId,
-                room_name = string.format("%s[%d]", "炸金花房间", roomId),
+                room_name = string.format("%s[%d]", "房间服务器", roomId),
             })
             if ret ~= 0 then
                 skynet.error(ret, err)

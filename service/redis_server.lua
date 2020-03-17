@@ -105,16 +105,16 @@ end
 function command.WRITEMESSAGE(mainId, subId, content)
 	if mainId == 0x0004 then
 		if subId == 0x0001 then	-- 更新匹配服务器，匹配队列等待人数，已经成功匹配的次数，匹配时长
-			local server_type = content.server_type -- 服务ID
+			local server_id = content.server_id -- 服务ID
 			local jsonstr = cjson.encode(content)
-			skynet.error("更新匹配服务器状态", jsonstr)
-			local ok = command.redisdb:hset("match_service", server_type, jsonstr)
+			-- skynet.error("更新匹配服务器状态", jsonstr)
+			local ok = command.redisdb:hset("match_server", server_id, jsonstr)
 			-- skynet.error("redis:", ok)
 		elseif subId == 0x0002 then
 			local room_id = content.room_id -- 更新房间服务器在线人数
 			local jsonstr = cjson.encode(content)
-			skynet.error("更新房间服务器在线人数", jsonstr)
-			local ok = command.redisdb:hset("room_service", room_id, jsonstr)
+			-- skynet.error("更新房间服务器在线人数", jsonstr)
+			local ok = command.redisdb:hset("room_server", room_id, jsonstr)
 			-- skynet.error("redis:", ok)
 		end
 	else
@@ -132,32 +132,30 @@ function command._savedToDBserver()
         -- dump(now, "系统时间")
 
         -- 按秒·汇报
-        if math.fmod(now.sec, 30) == 0 then
+        if math.fmod(now.sec, 10) == 0 then
 			local db_server_id = skynet.localname(".db_server")
 			assert(db_server_id > 0)
 
-			local exists = command.redisdb:exists("match_service")
+			local exists = command.redisdb:exists("match_server")
 			if exists then
-				local r = command.redisdb:hvals("match_service")
-				dump(r, "r")
-				for k, v in pairs(r) do
-					-- local d = cjson.decode(v)
-					-- dump(d, "d")
-					-- print("match_service", k, v)
+				local results = command.redisdb:hvals("match_server")
+				-- dump(results, "results")
+				for k, v in pairs(results) do
 					skynet.send(db_server_id, "lua", "writeMessage", 0x0005, 0x0001, v)
 				end
+			else
+				skynet.error("redis key (match_server) not found")
 			end
 
-			local exists = command.redisdb:exists("room_service")
+			local exists = command.redisdb:exists("room_server")
 			if exists then
-				local r = command.redisdb:hvals("room_service")
-				dump(r, "r")
-				for k, v in pairs(r) do
-					-- local d = cjson.decode(v)
-					-- dump(d, "d")
-					-- print("room_service", k, v)
+				local results = command.redisdb:hvals("room_server")
+				-- dump(results, "results")
+				for k, v in pairs(results) do
 					skynet.send(db_server_id, "lua", "writeMessage", 0x0005, 0x0002, v)
 				end
+			else
+				skynet.error("redis key (room_server) not found")
 			end
         end
 

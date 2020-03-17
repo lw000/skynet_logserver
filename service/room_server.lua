@@ -14,7 +14,7 @@ local command = {
     server_type = SERVICE_TYPE.ROOM, -- 服务ID
     room_id = 0, -- 房间ID
     room_name = "", -- 房间名字
-    room_user_count = 0, -- 当前房间人数
+    room_online_count = 0, -- 当前房间在线人数
     running = false -- 服务器状态
 }
 
@@ -25,6 +25,8 @@ function command.START(conf)
     command.room_id = conf.room_id
     command.room_name = conf.room_name
     command.running = true
+
+    math.randomseed(os.time())
 
     -- 上报服务器状态
     skynet.fork(command._uploadServerInfo)
@@ -51,15 +53,16 @@ function command._uploadServerInfo ()
         -- 按秒·汇报
         if math.fmod(now.sec, 1) == 0 then
             -- skynet.error("系统时间", os.date("%Y-%m-%d %H:%M:%S", os.time(now)))
-            skynet.error("上报·房间服务器在线人数")
-
+            -- skynet.error("上报·房间服务器在线人数")
+            
+            command.room_online_count = math.random(100, 150)
+            
             local redis_server_id = skynet.localname(".redis_server")
             skynet.send(redis_server_id, "lua", "writeMessage", 0x0004, 0x0002,
             {
-                server_type = command.server_type, -- 服务类型
                 room_id = command.room_id, -- 房间ID
-                server_name = command.room_name, -- 房间名字
-                room_user_count = command.room_user_count, -- 房间在线人数
+                room_name = command.room_name, -- 房间名字
+                room_online_count = command.room_online_count, -- 房间在线人数
             })
         end
 

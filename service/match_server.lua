@@ -12,7 +12,8 @@ require("config.config")
 
 local command = {
     server_type = SERVICE_TYPE.MATCH, -- 服务ID
-    server_name = "匹配服务器",
+    server_id = -1,
+    server_name = "",
     match_queue_length = 0, -- 匹配队列等待人数
     match_success_count = 0, -- 成功匹配的次数
     match_time = 0, -- 匹配时长
@@ -22,7 +23,13 @@ local command = {
 -- 服务启动·接口
 function command.START(conf)
     assert(conf ~= nil)
+    command.server_id = conf.server_id
+    command.server_name = conf.server_name
+    assert(command.server_id ~= nil or command.server_id ~= -1)
+    assert(command.server_name ~= nil or command.server_name ~= "")
+
     command.running = true
+    math.randomseed(os.time())
 
     -- 上报服务器状态
     skynet.fork(command._uploadServerInfo)
@@ -51,13 +58,16 @@ function command._uploadServerInfo()
         if math.fmod(now.sec, 1) == 0 then
             -- skynet.error("系统时间", os.date("%Y-%m-%d %H:%M:%S", os.time(now)))
 
-            skynet.error("上报·匹配服务器状态")
+            -- skynet.error("上报·匹配服务器状态")
             
+            command.match_queue_length = math.random(100, 150)
+            command.match_success_count = math.random(100, 150)
+
             local redis_server_id = skynet.localname(".redis_server")
             skynet.send(redis_server_id, "lua", "writeMessage", 0x0004, 0x0001,
             {
-                server_type = command.server_type, -- 服务类型
-                server_name = command.server_name,
+                server_id = command.server_id, -- 服务ID
+                server_name = command.server_name, -- 服务名字
                 match_queue_length = command.match_queue_length, -- 匹配队列等待人数
                 match_success_count = command.match_success_count, -- 成功匹配的次数
                 match_time = command.match_time, -- 匹配时长
