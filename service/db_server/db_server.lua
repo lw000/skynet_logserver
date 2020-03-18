@@ -14,11 +14,11 @@ require("config.config")
 ]]
 
 local command = {
-    server_type = SERVICE_TYPE.DB,  -- 服务ID
+    server_type = SERVICE.TYPE.DB,  -- 服务ID
     running = false,                -- 服务器状态
     dbconn = nil,                   -- db连接
-    conf = {},                      -- 数据库配置
-    methods = {}                    -- 业务处理接口映射表
+    conf = nil,                     -- 数据库配置
+    methods = nil                   -- 业务处理接口映射表
 }
 
 -- 服务启动·接口
@@ -31,12 +31,11 @@ local command = {
 function command.START(conf)
     assert(conf ~= nil)
     -- dump(conf, "conf")
-    command.methods = {}
     command.conf = conf
     command.dbconn = database.open(command.conf)
     assert(command.dbconn ~= nil)
     if command.dbconn == nil then
-        return 1, SERVER_NAME.DB .. "->fail"
+        return 1, SERVICE.NAMES.DB .. "->fail"
     end
 
     math.randomseed(os.time())
@@ -45,43 +44,43 @@ function command.START(conf)
 
     command.registerMethods()
 
-    local errmsg = SERVER_NAME.DB .. "->start"
+    local errmsg = SERVICE.NAMES.DB .. "->start"
     return 0, errmsg
 end
 
 -- 服务停止·接口
 function command.STOP()
-    command.methods = {}
     command.running = false
-
+    command.methods = nil
     database.close(command.dbconn)
     command.dbconn = nil
 
-    local errmsg = SERVER_NAME.DB .. "->stop"
+    local errmsg = SERVICE.NAMES.DB .. "->stop"
     return 0, errmsg
 end
 
 -- 注册业务处理接口
 function command.registerMethods()
-    command.methods[0x0001] = {func = dbhelper.syncMatchServerInfo, desc="同步匹配服务器数据"}
-    command.methods[0x0002] = {func = dbhelper.syncRoomServerOnlineCount, desc="更新房间在线用户数"}
-    command.methods[0x0003] = {func = dbhelper.writeGameLog, desc="写游戏记录"}
-    command.methods[0x0004] = {func = dbhelper.writeScoreChangeLog, desc="写玩家金币变化"}
-    dump(command.methods, "db_server.command.methods")
+    if command.methods == nil then
+		command.methods = {}
+    end
+    command.methods[DB_CMD.SUB_UPDATE_MATCH_SERVER_INFOS] = {func = dbhelper.syncMatchServerInfo, desc="同步匹配服务器数据"}
+    command.methods[DB_CMD.SUB_UPDATE_ROOM_SERVER_INFOS] = {func = dbhelper.syncRoomServerOnlineCount, desc="更新房间在线用户数"}
+    command.methods[DB_CMD.SUB_GAME_LOG] = {func = dbhelper.writeGameLog, desc="写游戏记录"}
+    command.methods[DB_CMD.SUB_GAME_SCORE_CHANGE_LOG] = {func = dbhelper.writeScoreChangeLog, desc="写玩家金币变化"}
+    dump(command.methods, SERVICE.NAMES.DB .. ".command.methods")
 end
 
--- 写数据到DB
+-- DB消息處理接口
 function command.MESSAGE(mid, sid, content)
-    skynet.error(string.format("db_server mid=%d, sid=%d", mid, sid))
+    skynet.error(string.format(SERVICE.NAMES.DB .. ":> mid=%d sid=%d", mid, sid))
 
     if mid ~= DB_CMD.MDM_DB then
-        skynet.error("unknow db_server message command")
+        skynet.error("unknown " .. SERVICE.NAMES.DB .. " message command")
     end
 
     -- 查询业务处理函数
-    local method = command.methods[sid]
-    dump(command.methods, "db_server.command.methods")
-      
+    local method = command.methods[sid]   
     assert(method ~= nil)
     if method then
         local ret, err = method.func(command.dbconn, content)
@@ -115,7 +114,7 @@ local function dispatch()
             end
         end
     )
-    skynet.register(SERVER_NAME.DB)
+    skynet.register(SERVICE.NAMES.DB)
 end
 
 skynet.start(dispatch)

@@ -74,22 +74,21 @@ local function test_redis()
 end
 
 local command = {
-	server_type = SERVICE_TYPE.REDIS, 	-- 服务ID
+	server_type = SERVICE.TYPE.REDIS, 	-- 服务ID
 	running = false,					-- 服务器状态
 	redisConn = nil,					-- redis连接
 	syncinterval = 30, 					-- 同步DB时间间隔，秒·单位
-	conf = {}, 							-- redis配置
-	methods = {} 						-- 业务处理接口映射表
+	conf = nil, 						-- redis配置
+	methods = nil 						-- 业务处理接口映射表
 }
 
 function command.START(conf)
 	assert(conf ~= nil)
 	command.conf = conf
-	command.methods = {}
 	command.redisConn = redis.connect(command.conf)
 	assert(command.redisConn ~= nil)
     if command.redisConn == nil then
-        return 1, SERVER_NAME.REDIS .. "->fail"
+        return 1, SERVICE.NAMES.REDIS .. "->fail"
 	end
 	
 	math.randomseed(os.time())
@@ -101,32 +100,35 @@ function command.START(conf)
 	-- 定时同步数据到dbserver
 	skynet.fork(command._syncdbserver)
 
-	local errmsg =  SERVER_NAME.REDIS .. "->start"
+	local errmsg =  SERVICE.NAMES.REDIS .. "->start"
     return 0, errmsg
 end
 
 function command.STOP()
 	command.running = false
-	command.methods = {}
+	command.methods = nil
 	command.redisConn:disconnect()
 	command.redisdb = nil
 
-	local errmsg = SERVER_NAME.REDIS .. "->stop"
+	local errmsg = SERVICE.NAMES.REDIS .. "->stop"
     return 0, errmsg
 end
 
 function command.registerMethods()
-    command.methods[0x0001] = {func = redishelper.saveMatchServerInfo, desc="同步匹配服务器数据"}
-    command.methods[0x0002] = {func = redishelper.saveRoomServerOnlineCount, desc="更新房间在线用户数"}
-    dump(command.methods, "redis_server.command.methods")
+	if command.methods == nil then
+		command.methods = {}
+	end
+    command.methods[REDIS_CMD.SUB_UPDATE_MATCH_SERVER_INFOS] = {func = redishelper.saveMatchServerInfo, desc="更新匹配服务器数据"}
+    command.methods[REDIS_CMD.SUB_UPDATE_ROOM_SERVER_INFOS] = {func = redishelper.saveRoomServerInfo, desc="更新房间服务器数据"}
+	dump(command.methods, SERVICE.NAMES.REDIS .. ".command.methods")
 end
 
--- 写数据到REDIS
+-- REDIS消息處理接口
 function command.MESSAGE(mid, sid, content)
-	skynet.error(string.format("redis_server mid=%d, sid=%d", mid, sid))
+	skynet.error(string.format(SERVICE.NAMES.REDIS .. ":> mid=%d sid=%d", mid, sid))
 
 	if mid ~= REDIS_CMD.MDM_REDIS then
-		skynet.error("unknow redis_server message command")
+		skynet.error("unknown " .. SERVICE.NAMES.REDIS .. " message command")
 		return -1
 	end
 
@@ -187,7 +189,7 @@ local function dispatch()
             end
         end
     )
-    skynet.register(SERVER_NAME.REDIS)
+    skynet.register(SERVICE.NAMES.REDIS)
 end
 
 skynet.start(dispatch)

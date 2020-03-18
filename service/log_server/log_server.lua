@@ -8,44 +8,48 @@ require("skynet.manager")
 require("config.config")
 
 local command = {
-    server_id = SERVICE_TYPE.LOG, -- 服务ID
-    methods = {}, -- 业务处理接口映射表
-    running = false,	-- 服务器状态
+    server_type = SERVICE.TYPE.LOG, -- 服务类型
+    server_name = "",               -- 服务名称
+    running = false,	            -- 服务器状态
+    methods = nil,                  -- 业务处理接口映射表
 }
 
 function command.START()
+    math.randomseed(os.time())
+    
     command.running = true
     command.registerMethods()
 
-    math.randomseed(os.time())
-    
-    local errmsg = SERVER_NAME.LOG .. "->start"
+    local errmsg = SERVICE.NAMES.LOG .. "->start"
     return 0, errmsg
 end
 
 function command.STOP()
     command.running = false
-    command.methods = {}
+    command.methods = nil
 
-    local errmsg = SERVER_NAME.LOG .. "->stop"
+    local errmsg = SERVICE.NAMES.LOG .. "->stop"
     return 0, errmsg
 end
 
 function command.registerMethods()
-    command.methods[0x0001] = {func = loghelper.saveMatchServerInfo, desc="同步匹配服务器数据"}
-    command.methods[0x0002] = {func = loghelper.saveRoomServerOnlineCount, desc="更新房间在线用户数"}
-    command.methods[0x0003] = {func = loghelper.writeGameLog, desc="写游戏记录"}
-    command.methods[0x0004] = {func = loghelper.writeScoreChangeLog, desc="写玩家金币变化"}
-    dump(command.methods, "redis_server.command.methods")
+    if command.methods == nil then
+		command.methods = {}
+    end
+
+    command.methods[LOG_CMD.SUB_UPDATE_MATCH_SERVER_INFOS]  = {func = loghelper.saveMatchServerInfo, desc="更新匹配服务器数据"}
+    command.methods[LOG_CMD.SUB_UPDATE_ROOM_SERVER_INFOS]   = {func = loghelper.saveRoomServerInfo, desc="更新房间服务器数据"}
+    command.methods[LOG_CMD.SUB_GAME_LOG]                   = {func = loghelper.writeGameLog, desc="写游戏记录"}
+    command.methods[LOG_CMD.SUB_GAME_SCORE_CHANGE_LOG]      = {func = loghelper.writeScoreChangeLog, desc="写玩家金币变化记录"}
+    dump(command.methods, SERVICE.NAMES.LOG .. ".command.methods")
 end
 
-
--- log服务接受请求
+-- LOG消息處理接口
 function command.MESSAGE(mid, sid, content)
-	skynet.error(string.format("log_server mid=%d, sid=%d", mid, sid))
+    skynet.error(string.format(SERVICE.NAMES.LOG .. ":> mid=%d sid=%d", mid, sid))
 
 	if mid ~= LOG_CMD.MDM_LOG then
-		skynet.error("unknow log_server message command")
+		skynet.error("unknown " .. SERVICE.NAMES.LOG .. " message command")
 		return -1
 	end
     
@@ -53,7 +57,7 @@ function command.MESSAGE(mid, sid, content)
     local method = command.methods[sid]
     assert(method ~= nil)
     if method then
-        local ret, err = method.func(command.redisConn, content)
+        local ret, err = method.func(content)
         if err ~= nil then
             skynet.error(err)
             return 1
@@ -84,7 +88,7 @@ local function dispatch()
             end
         end
     )
-    skynet.register(SERVER_NAME.LOG)
+    skynet.register(SERVICE.NAMES.LOG)
 end
 
 skynet.start(dispatch)

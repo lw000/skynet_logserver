@@ -3,6 +3,7 @@ package.path = package.path .. ";./service/room_server/?.lua;"
 
 local skynet = require("skynet")
 local service = require("skynet.service")
+local skyhelper = require("sky_common.helper")
 require("skynet.manager")
 require("common.export")
 require("config.config")
@@ -23,10 +24,10 @@ require("config.config")
 -- [{"userId":1000,"cards":["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"]},{"userId":1000,"cards":["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"]},{"userId":1000,"cards":["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"]},{"userId":1000,"cards":["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"]},{"userId":1000,"cards":["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"]},{"userId":1000,"cards":["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"]}]
 
 local command = {
-    server_type = SERVICE_TYPE.ROOM,    -- 服务ID
+    server_type = SERVICE.TYPE.ROOM,    -- 服务ID
     room_id = 0,                        -- 房间ID
     room_name = "",                     -- 房间名字
-    room_online_count = 0,              -- 当前房间在线人数
+    online_count = 0,                   -- 房间在线人数
     running = false                     -- 服务器状态
 }
 
@@ -34,16 +35,20 @@ local command = {
 function command.START(conf)
     assert(conf ~= nil)
     -- dump(conf, "conf")
+
+    math.randomseed(os.time())
+
     command.room_id = conf.room_id
     command.room_name = conf.room_name
     command.running = true
 
-    math.randomseed(os.time())
+    -- 房间服务业务
+    skynet.fork(command._ai)
 
     -- 上报服务器状态
     skynet.fork(command._uploadServerInfo)
     
-    local errmsg = SERVER_NAME.ROOM .. "->start"
+    local errmsg = SERVICE.NAMES.ROOM .. "->start"
     return 0, errmsg
 end
 
@@ -51,8 +56,18 @@ end
 function command.STOP()
     command.running = false
 
-    local errmsg = SERVER_NAME.ROOM .. "->stop"
+    local errmsg = SERVICE.NAMES.ROOM .. "->stop"
     return 0, errmsg
+end
+
+
+-- 房间服务业务
+function command._ai ()
+    while command.running do
+        skynet.sleep(100)
+
+        command.online_count = math.random(100, 150)
+    end
 end
 
 -- 上报服务器信息
@@ -62,38 +77,25 @@ function command._uploadServerInfo ()
 
         local now = os.date("*t")
         -- dump(now, "系统时间")
+        -- skynet.error("系统时间", os.date("%Y-%m-%d %H:%M:%S", os.time(now)))
 
         -- 每秒更新房间在线用户数到日志服务
-        if math.fmod(now.sec, 1) == 0 then
-            -- skynet.error("系统时间", os.date("%Y-%m-%d %H:%M:%S", os.time(now)))
-            
-            skynet.error("更新房间在线用户数")
-
-            command.room_online_count = math.random(100, 150)
-            
-            local logServerId = skynet.localname(SERVER_NAME.LOG)
-            assert(logServerId ~= nil)
-            if logServerId == nil then
-                return
-            end
-            skynet.send(logServerId, "lua", "message", LOG_CMD.MDM_LOG, LOG_CMD.SUB_UPDATE_ROOM_ONLINE_COUNT,
-            {
+        if math.fmod(now.sec, 1) == 0 then            
+            -- 1. 更新房间在线用户数
+            skynet.error("更新房间服务器数据（在线用户数）")
+            local roomInfo = {
                 room_id = command.room_id, -- 房间ID
                 room_name = command.room_name, -- 房间名字
-                room_online_count = command.room_online_count, -- 房间在线人数
-            })
+                room_online_count = command.online_count, -- 房间在线人数
+            }
+            skyhelper.sendLocal(SERVICE.NAMES.LOG, "message", LOG_CMD.MDM_LOG, LOG_CMD.SUB_UPDATE_ROOM_SERVER_INFOS, roomInfo)
         end
 
-        -- 每10秒写牌局日志到日志服务器
-        -- 每10秒玩家分数日志到日志服务器
+        -- 1. 每10秒写牌局日志到日志服务器
+        -- 2. 每10秒玩家分数日志到日志服务器
         if math.fmod(now.sec, 10) == 0 then
-            local logServerId = skynet.localname(SERVER_NAME.LOG)
-            assert(logServerId ~= nil)
-            if logServerId == nil then
-                return
-            end
-            skynet.error("写牌局日志到日志服务器")
             -- 1. 写牌局日志到日志服务器
+            skynet.error("写牌局日志到日志服务器")
             local gamelog = {}
             gamelog.gameLogId = os.time() -- 牌局ID
             gamelog.betScore = {} -- 玩家下注分数
@@ -113,16 +115,17 @@ function command._uploadServerInfo ()
             table.insert(gamelog.cardInfo, {userId= 10001, cards={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'}})
             table.insert(gamelog.cardInfo, {userId= 10002, cards={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'}})
             table.insert(gamelog.cardInfo, {userId= 10003, cards={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'}})
-            skynet.send(logServerId, "lua", "message", LOG_CMD.MDM_LOG, LOG_CMD.SUB_GAME_LOG, gamelog)
+            skyhelper.sendLocal(SERVICE.NAMES.LOG, "message", LOG_CMD.MDM_LOG, LOG_CMD.SUB_GAME_LOG, gamelog)
 
-            skynet.error("写玩家分数日志到日志服务器")
+            
             -- 2. 写玩家分数日志到日志服务器
+            skynet.error("写玩家分数日志到日志服务器")
             local gameScoreChangeLog = {}
             table.insert(gameScoreChangeLog, {userId = 10000, score = 10, changeScore = 60, beforScore = 10000})
             table.insert(gameScoreChangeLog, {userId = 10001, score = 10, changeScore = -10, beforScore = 10000})
             table.insert(gameScoreChangeLog, {userId = 10002, score = 10, changeScore = -20, beforScore = 10000})
             table.insert(gameScoreChangeLog, {userId = 10003, score = 10, changeScore = -30, beforScore = 10000})
-            skynet.send(logServerId, "lua", "message", LOG_CMD.MDM_LOG, LOG_CMD.SUB_GAME_SCORE_CHANGE_LOG, gameScoreChangeLog)
+            skyhelper.sendLocal(SERVICE.NAMES.LOG, "message", LOG_CMD.MDM_LOG, LOG_CMD.SUB_GAME_SCORE_CHANGE_LOG, gameScoreChangeLog)
         end
 
         -- 按分钟·汇报
@@ -150,7 +153,7 @@ local function dispatch()
             end
         end
     )
-    skynet.register(SERVER_NAME.ROOM)
+    skynet.register(SERVICE.NAMES.ROOM)
 end
 
 skynet.start(dispatch)

@@ -1,6 +1,6 @@
 local skynet = require("skynet")
-local database = require("database.database")
 local cjson = require("cjson")
+local database = require("database.database")
 require("common.export")
 
 local dbhelper = {

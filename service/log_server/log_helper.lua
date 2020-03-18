@@ -1,5 +1,6 @@
 local skynet = require("skynet")
 local cjson = require("cjson")
+local skyhelper = require("sky_common.helper")
 require("common.export")
 require("config.config")
 
@@ -8,43 +9,23 @@ local loghelper = {
 }
 
 -- 同步匹配服务器信息
-function loghelper.saveMatchServerInfo(redisConn, content)
-    local redis_server_id = skynet.localname(SERVER_NAME.REDIS)
-    assert(redis_server_id ~= nil)
-    if redis_server_id == nil then
-        return
-    end
-    skynet.send(redis_server_id, "lua", "message", REDIS_CMD.MDM_REDIS, REDIS_CMD.SUB_UPDATE_MATCH_SERVER_INFOS, content)
+function loghelper.saveMatchServerInfo(content)
+   skyhelper.sendLocal(SERVICE.NAMES.REDIS, "message", REDIS_CMD.MDM_REDIS, REDIS_CMD.SUB_UPDATE_MATCH_SERVER_INFOS, content)
 end
 
 -- 同步房间在线用户
-function loghelper.saveRoomServerOnlineCount(redisConn, content)
-    local redis_server_id = skynet.localname(SERVER_NAME.REDIS)
-    assert(redis_server_id ~= nil)
-    if redis_server_id == nil then
-        return
-    end
-    skynet.send(redis_server_id, "lua", "message", REDIS_CMD.MDM_REDIS, REDIS_CMD.SUB_UPDATE_ROOM_ONLINE_COUNT, content)
+function loghelper.saveRoomServerInfo(content)
+    skyhelper.sendLocal(SERVICE.NAMES.REDIS, "message", REDIS_CMD.MDM_REDIS, REDIS_CMD.SUB_UPDATE_ROOM_SERVER_INFOS, content)
 end
 
 -- 写玩家游戏记录
-function loghelper.writeGameLog(redisConn, content)
-    local db_server_id = skynet.localname(SERVER_NAME.DB)
-    assert(db_server_id ~= nil)
-    if db_server_id == nil then
-        return
-    end
-    skynet.send(db_server_id, "lua", "message", DB_CMD.MDM_DB, DB_CMD.SUB_GAME_LOG, content)
+function loghelper.writeGameLog(content)
+    skyhelper.sendLocal(SERVICE.NAMES.DB, "message", DB_CMD.MDM_DB, DB_CMD.SUB_GAME_LOG, content)
 end
 
 -- 写玩家金币变化记录
-function loghelper.writeScoreChangeLog(redisConn, content)
-    local db_server_id = skynet.localname(SERVER_NAME.DB)
-    assert(db_server_id ~= nil)
-    if db_server_id == nil then
-        return
-    end
-    skynet.send(db_server_id, "lua", "message", DB_CMD.MDM_DB, DB_CMD.SUB_GAME_SCORE_CHANGE_LOG, content)
+function loghelper.writeScoreChangeLog(content)
+    skyhelper.sendLocal(SERVICE.NAMES.DB, "message", DB_CMD.MDM_DB, DB_CMD.SUB_GAME_SCORE_CHANGE_LOG, content)
 end
 
 return loghelper
