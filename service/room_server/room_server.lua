@@ -3,7 +3,7 @@ package.path = package.path .. ";./service/room_server/?.lua;"
 
 local skynet = require("skynet")
 local service = require("skynet.service")
-local skyhelper = require("sky_common.helper")
+local skyhelper = require("skycommon.helper")
 local logic = require("room_logic")
 require("skynet.manager")
 require("common.export")
