@@ -36,14 +36,14 @@ function command.START(conf)
     command.dbconn = database.open(command.conf)
     assert(command.dbconn ~= nil)
     if command.dbconn == nil then
-        return 1, command.servername .. "->fail"
+        return 1, command.servername .. " fail"
     end
 
     command.running = true
 
     dbmanager.start(command.servername)
 
-    local errmsg = command.servername .. "->start"
+    local errmsg = command.servername .. " start"
     return 0, errmsg
 end
 
@@ -56,7 +56,7 @@ function command.STOP()
     database.close(command.dbconn)
     command.dbconn = nil
 
-    local errmsg = command.servername .. "->stop"
+    local errmsg = command.servername .. " stop"
     return 0, errmsg
 end
 

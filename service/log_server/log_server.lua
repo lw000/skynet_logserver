@@ -3,6 +3,7 @@ package.path = package.path .. ";./service/log_server/?.lua;"
 
 local skynet = require("skynet")
 local service = require("skynet.service")
+local datacenter = require("skynet.datacenter")
 local logmgr = require("log_manager")
 require("skynet.manager")
 require("config.config")
@@ -20,8 +21,12 @@ function command.START()
     command.running = true
 
     logmgr.start(command.servername)
+    
+    -- dump(datacenter.get("debug"), "debug")
+    -- dump(datacenter.get("release"), "release")
+    -- dump(datacenter.get("config"), "config")
 
-    local errmsg = command.servername .. "->start"
+    local errmsg = command.servername .. " start"
     return 0, errmsg
 end
 
@@ -29,7 +34,7 @@ function command.STOP()
     command.running = false
     logmgr.stop()
 
-    local errmsg = command.servername .. "->stop"
+    local errmsg = command.servername .. " stop"
     return 0, errmsg
 end
 

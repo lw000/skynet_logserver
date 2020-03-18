@@ -88,7 +88,7 @@ function command.START(conf)
 	command.redisConn = redis.connect(command.conf)
 	assert(command.redisConn ~= nil)
     if command.redisConn == nil then
-        return 1, command.servername .. "->fail"
+        return 1, command.servername .. " fail"
 	end
 	
 	math.randomseed(os.time())
@@ -100,7 +100,7 @@ function command.START(conf)
 	-- 定时同步数据到dbserver
 	skynet.fork(command._syncdbserver)
 
-	local errmsg = command.servername .. "->start"
+	local errmsg = command.servername .. " start"
     return 0, errmsg
 end
 
@@ -112,7 +112,7 @@ function command.STOP()
 	command.redisConn:disconnect()
 	command.redisdb = nil
 
-	local errmsg = command.servername .. "->stop"
+	local errmsg = command.servername .. " stop"
     return 0, errmsg
 end
 

@@ -50,7 +50,7 @@ function command.START(conf)
     -- 上报服务器状态
     skynet.fork(command._uploadServerInfo)
     
-    local errmsg = command.servername .. "->start"
+    local errmsg = command.servername .. " start"
     return 0, errmsg
 end
 
@@ -58,7 +58,7 @@ end
 function command.STOP()
     command.running = false
 
-    local errmsg = command.servername .. "->stop"
+    local errmsg = command.servername .. " stop"
     return 0, errmsg
 end
 

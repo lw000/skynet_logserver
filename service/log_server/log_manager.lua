@@ -21,7 +21,7 @@ function manager.start(servername)
     manager.methods[LOG_CMD.SUB_GAME_SCORE_CHANGE_LOG]      = {func = logic.writeScoreChangeLog, desc="写玩家金币变化记录"}
     manager.methods[LOG_CMD.SUB_USER_INFO]                  = {func = logic.queryUserInfo, desc="查询用户信息"}
     
-    dump(manager.methods, manager.servername .. ".command.methods")
+    -- dump(manager.methods, manager.servername .. ".command.methods")
 end
 
 function manager.stop()
