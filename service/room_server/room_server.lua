@@ -4,6 +4,7 @@ package.path = package.path .. ";./service/room_server/?.lua;"
 local skynet = require("skynet")
 local service = require("skynet.service")
 local skyhelper = require("sky_common.helper")
+local logic = require("room_logic")
 require("skynet.manager")
 require("common.export")
 require("config.config")
@@ -88,44 +89,46 @@ function command._uploadServerInfo ()
                 room_name = command.room_name, -- 房间名字
                 room_online_count = command.online_count, -- 房间在线人数
             }
-            skyhelper.sendLocal(SERVICE.NAME.LOG, "message", LOG_CMD.MDM_LOG, LOG_CMD.SUB_UPDATE_ROOM_SERVER_INFOS, roomInfo)
+            logic.updateRoomInfo(roomInfo)
+            -- skyhelper.sendLocal(SERVICE.NAME.LOG, "message", LOG_CMD.MDM_LOG, LOG_CMD.SUB_UPDATE_ROOM_SERVER_INFOS, roomInfo)
         end
 
         -- 1. 每10秒写牌局日志到日志服务器
         -- 2. 每10秒玩家分数日志到日志服务器
         if math.fmod(now.sec, 10) == 0 then
             -- 1. 写牌局日志到日志服务器
-            skynet.error("写牌局日志到日志服务器")
             local gamelog = {}
             gamelog.gameLogId = os.time() -- 牌局ID
             gamelog.betScore = {} -- 玩家下注分数
             gamelog.resultScore = {} -- 玩家结算分数
             gamelog.cardInfo = {} -- 玩家牌面值信息
+            
+            -- 玩家下注分数
             table.insert(gamelog.betScore, {userId= 10000, bet=80})
             table.insert(gamelog.betScore, {userId= 10001, bet=10})
             table.insert(gamelog.betScore, {userId= 10002, bet=20})
             table.insert(gamelog.betScore, {userId= 10003, bet=30})
             
+            -- 玩家结算分数
             table.insert(gamelog.resultScore, {userId= 10000, score=60, status=1})
             table.insert(gamelog.resultScore, {userId= 10001, score=10, status=-1})
             table.insert(gamelog.resultScore, {userId= 10002, score=20, status=-1})
             table.insert(gamelog.resultScore, {userId= 10003, score=30, status=-1})
 
+            -- 玩家牌面值信息
             table.insert(gamelog.cardInfo, {userId= 10000, cards={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'}})
             table.insert(gamelog.cardInfo, {userId= 10001, cards={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'}})
             table.insert(gamelog.cardInfo, {userId= 10002, cards={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'}})
             table.insert(gamelog.cardInfo, {userId= 10003, cards={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'}})
-            skyhelper.sendLocal(SERVICE.NAME.LOG, "message", LOG_CMD.MDM_LOG, LOG_CMD.SUB_GAME_LOG, gamelog)
-
+            logic.writeGameLog(gamelog)
             
             -- 2. 写玩家分数日志到日志服务器
-            skynet.error("写玩家分数日志到日志服务器")
             local gameScoreChangeLog = {}
             table.insert(gameScoreChangeLog, {userId = 10000, score = 10, changeScore = 60, beforScore = 10000})
             table.insert(gameScoreChangeLog, {userId = 10001, score = 10, changeScore = -10, beforScore = 10000})
             table.insert(gameScoreChangeLog, {userId = 10002, score = 10, changeScore = -20, beforScore = 10000})
             table.insert(gameScoreChangeLog, {userId = 10003, score = 10, changeScore = -30, beforScore = 10000})
-            skyhelper.sendLocal(SERVICE.NAME.LOG, "message", LOG_CMD.MDM_LOG, LOG_CMD.SUB_GAME_SCORE_CHANGE_LOG, gameScoreChangeLog)
+            logic.writeGameScoreChangeLog(gameScoreChangeLog)
         end
 
         -- 按分钟·汇报

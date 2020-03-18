@@ -3,11 +3,11 @@ local cjson = require("cjson")
 local database = require("database.database")
 require("common.export")
 
-local dbhelper = {
+local logic = {
 
 }
 
-function dbhelper.checkparcm(dbconn, content)
+function logic.checkparcm(dbconn, content)
     assert(dbconn ~= nil)
     assert(content ~= nil)
     if dbconn == nil then
@@ -20,7 +20,7 @@ function dbhelper.checkparcm(dbconn, content)
 end
 
 -- 获取用户信息
-function dbhelper.queryUserInfo(dbconn, content)
+function logic.queryUserInfo(dbconn, content)
     local sql = [[select * from user]]
     local result, err = database.query(dbconn, sql)
     if err ~= nil then
@@ -31,7 +31,7 @@ function dbhelper.queryUserInfo(dbconn, content)
 end
 
 -- 同步匹配服务器信息
-function dbhelper.syncMatchServerInfo(dbconn, content)
+function logic.syncMatchServerInfo(dbconn, content)
     assert(dbconn ~= nil)
     assert(content ~= nil)
     if dbconn == nil then
@@ -69,7 +69,7 @@ function dbhelper.syncMatchServerInfo(dbconn, content)
 end
 
 -- 同步房间在线用户
-function dbhelper.syncRoomServerOnlineCount(dbconn, content)
+function logic.syncRoomServerOnlineCount(dbconn, content)
     assert(dbconn ~= nil)
     assert(content ~= nil)
     if dbconn == nil then
@@ -104,7 +104,7 @@ function dbhelper.syncRoomServerOnlineCount(dbconn, content)
 end
 
 -- 写玩家游戏记录
-function dbhelper.writeGameLog(dbconn, content)
+function logic.writeGameLog(dbconn, content)
     assert(dbconn ~= nil)
     assert(content ~= nil)
     if dbconn == nil then
@@ -133,7 +133,7 @@ function dbhelper.writeGameLog(dbconn, content)
 end
 
 -- 写玩家金币变化记录
-function dbhelper.writeScoreChangeLog(dbconn, content)
+function logic.writeScoreChangeLog(dbconn, content)
     assert(dbconn ~= nil)
     assert(content ~= nil)
     if dbconn == nil then
@@ -164,5 +164,4 @@ function dbhelper.writeScoreChangeLog(dbconn, content)
     return 0, nil
 end
 
-
-return dbhelper
+return logic

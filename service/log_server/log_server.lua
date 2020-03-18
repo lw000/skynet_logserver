@@ -3,7 +3,7 @@ package.path = package.path .. ";./service/log_server/?.lua;"
 
 local skynet = require("skynet")
 local service = require("skynet.service")
-local loghelper = require("log_helper")
+local logic = require("log_logic")
 require("skynet.manager")
 require("config.config")
 
@@ -37,10 +37,10 @@ function command.registerMethods()
 		command.methods = {}
     end
 
-    command.methods[LOG_CMD.SUB_UPDATE_MATCH_SERVER_INFOS]  = {func = loghelper.saveMatchServerInfo, desc="更新匹配服务器数据"}
-    command.methods[LOG_CMD.SUB_UPDATE_ROOM_SERVER_INFOS]   = {func = loghelper.saveRoomServerInfo, desc="更新房间服务器数据"}
-    command.methods[LOG_CMD.SUB_GAME_LOG]                   = {func = loghelper.writeGameLog, desc="写游戏记录"}
-    command.methods[LOG_CMD.SUB_GAME_SCORE_CHANGE_LOG]      = {func = loghelper.writeScoreChangeLog, desc="写玩家金币变化记录"}
+    command.methods[LOG_CMD.SUB_UPDATE_MATCH_SERVER_INFOS]  = {func = logic.saveMatchServerInfo, desc="更新匹配服务器数据"}
+    command.methods[LOG_CMD.SUB_UPDATE_ROOM_SERVER_INFOS]   = {func = logic.saveRoomServerInfo, desc="更新房间服务器数据"}
+    command.methods[LOG_CMD.SUB_GAME_LOG]                   = {func = logic.writeGameLog, desc="写游戏记录"}
+    command.methods[LOG_CMD.SUB_GAME_SCORE_CHANGE_LOG]      = {func = logic.writeScoreChangeLog, desc="写玩家金币变化记录"}
     dump(command.methods, SERVICE.NAME.LOG .. ".command.methods")
 end
 

@@ -2,7 +2,8 @@ package.path = package.path .. ";./service/?.lua;"
 package.path = package.path .. ";./service/match_server/?.lua;"
 local skynet = require("skynet")
 local service = require("skynet.service")
-local skyhelper = require("sky_common.helper")
+local logic = require("match_logic")
+
 require("skynet.manager")
 require("common.export")
 require("config.config")
@@ -88,7 +89,6 @@ function command._uploadServerInfo()
         if math.fmod(now.sec, 1) == 0 then
             -- skynet.error("系统时间", os.date("%Y-%m-%d %H:%M:%S", os.time(now)))
             
-            skynet.error("更新匹配服务器数据（匹配队列等待人数，已经成功匹配的次数，匹配时长）")
             local serverInfo = {
                 server_id = command.server_id,                          -- 服务ID
                 server_name = command.server_name,                      -- 服务名字
@@ -96,8 +96,8 @@ function command._uploadServerInfo()
                 match_success_count = command.match_success_count,      -- 成功匹配的次数
                 match_time = command.running_time - command.start_time, -- 匹配时长
             }
-            skyhelper.sendLocal(SERVICE.NAME.LOG, "message", LOG_CMD.MDM_LOG, LOG_CMD.SUB_UPDATE_MATCH_SERVER_INFOS, serverInfo)
-        end
+            logic.updateServerInfo(serverInfo)
+         end
 
         -- 按分钟·上报
         if now.sec == 0 and math.fmod(now.min, 1) == 0 then

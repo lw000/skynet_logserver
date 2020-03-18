@@ -4,7 +4,7 @@ package.path = package.path .. ";./service/db_server/?.lua;"
 local skynet = require("skynet")
 local service = require("skynet.service")
 local database = require("database.database")
-local dbhelper = require("db_helper")
+local logic = require("db_logic")
 require("skynet.manager")
 require("common.export")
 require("config.config")
@@ -64,10 +64,10 @@ function command.registerMethods()
     if command.methods == nil then
 		command.methods = {}
     end
-    command.methods[DB_CMD.SUB_UPDATE_MATCH_SERVER_INFOS] = {func = dbhelper.syncMatchServerInfo, desc="同步匹配服务器数据"}
-    command.methods[DB_CMD.SUB_UPDATE_ROOM_SERVER_INFOS] = {func = dbhelper.syncRoomServerOnlineCount, desc="更新房间在线用户数"}
-    command.methods[DB_CMD.SUB_GAME_LOG] = {func = dbhelper.writeGameLog, desc="写游戏记录"}
-    command.methods[DB_CMD.SUB_GAME_SCORE_CHANGE_LOG] = {func = dbhelper.writeScoreChangeLog, desc="写玩家金币变化"}
+    command.methods[DB_CMD.SUB_UPDATE_MATCH_SERVER_INFOS] = {func = logic.syncMatchServerInfo, desc="同步匹配服务器数据"}
+    command.methods[DB_CMD.SUB_UPDATE_ROOM_SERVER_INFOS] = {func = logic.syncRoomServerOnlineCount, desc="更新房间在线用户数"}
+    command.methods[DB_CMD.SUB_GAME_LOG] = {func = logic.writeGameLog, desc="写游戏记录"}
+    command.methods[DB_CMD.SUB_GAME_SCORE_CHANGE_LOG] = {func = logic.writeScoreChangeLog, desc="写玩家金币变化"}
     dump(command.methods, SERVICE.NAME.DB .. ".command.methods")
 end
 

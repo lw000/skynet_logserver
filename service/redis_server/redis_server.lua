@@ -4,7 +4,7 @@ package.path = package.path .. ";./service/redis_server/?.lua;"
 local skynet = require("skynet")
 local service = require("skynet.service")
 local redis = require("skynet.db.redis")
-local redishelper = require("redis_helper")
+local logic = require("redis_logic")
 
 require("skynet.manager")
 require("common.export")
@@ -118,8 +118,8 @@ function command.registerMethods()
 	if command.methods == nil then
 		command.methods = {}
 	end
-    command.methods[REDIS_CMD.SUB_UPDATE_MATCH_SERVER_INFOS] = {func = redishelper.saveMatchServerInfo, desc="更新匹配服务器数据"}
-    command.methods[REDIS_CMD.SUB_UPDATE_ROOM_SERVER_INFOS] = {func = redishelper.saveRoomServerInfo, desc="更新房间服务器数据"}
+    command.methods[REDIS_CMD.SUB_UPDATE_MATCH_SERVER_INFOS] = {func = logic.saveMatchServerInfo, desc="更新匹配服务器数据"}
+    command.methods[REDIS_CMD.SUB_UPDATE_ROOM_SERVER_INFOS] = {func = logic.saveRoomServerInfo, desc="更新房间服务器数据"}
 	dump(command.methods, SERVICE.NAME.REDIS .. ".command.methods")
 end
 
