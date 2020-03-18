@@ -35,9 +35,6 @@ function database.open(conf)
         skynet.error("failed to connect gamedata")
         return nil
     end
-
-    skynet.error("success to connect to mysql server")
-
     return db
 end
 

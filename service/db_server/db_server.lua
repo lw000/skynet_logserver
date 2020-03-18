@@ -38,7 +38,7 @@ function command.START(conf)
     if command.dbconn == nil then
         return 1, command.servername .. " fail"
     end
-
+    
     command.running = true
 
     dbmanager.start(command.servername)
