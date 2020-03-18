@@ -172,20 +172,12 @@ local function dispatch()
         "lua",
         function(session, address, cmd, ...)
             cmd = cmd:upper()
-            if cmd == "START" then
-                local f = command[cmd]
-                assert(f)
+            local f = command[cmd]
+            assert(f)
+            if f then
                 skynet.ret(skynet.pack(f(...)))
-            elseif cmd == "STOP" then
-                local f = command[cmd]
-                assert(f)
-				skynet.ret(skynet.pack(f(...)))
-			elseif cmd == "MESSAGE" then
-                local f = command[cmd]
-                assert(f)
-				skynet.ret(skynet.pack(f(...)))
             else
-                skynet.error(string.format("redis_server unknown command %s", tostring(cmd)))
+                skynet.error(string.format(SERVICE.NAME.REDIS .. " unknown command %s", tostring(cmd)))
             end
         end
     )
