@@ -1,10 +1,9 @@
 package.path = package.path .. ";./service/?.lua;"
 package.path = package.path .. ";./service/db_server/?.lua;"
-
 local skynet = require("skynet")
 local service = require("skynet.service")
 local database = require("database.database")
-local logic = require("db_logic")
+local dbmanager = require("db_manager")
 require("skynet.manager")
 require("common.export")
 require("config.config")
@@ -18,7 +17,6 @@ local command = {
     running = false,                -- 服务器状态
     dbconn = nil,                   -- db连接
     conf = nil,                     -- 数据库配置
-    methods = nil                   -- 业务处理接口映射表
 }
 
 -- 服务启动·接口
@@ -27,10 +25,12 @@ local command = {
     code=0成功，非零失败
     err 错误消息
 ]]
-
 function command.START(conf)
     assert(conf ~= nil)
-    -- dump(conf, "conf")
+    
+    -- 设置随机种子
+    math.randomseed(os.time())
+
     command.conf = conf
     command.dbconn = database.open(command.conf)
     assert(command.dbconn ~= nil)
@@ -38,11 +38,9 @@ function command.START(conf)
         return 1, SERVICE.NAME.DB .. "->fail"
     end
 
-    math.randomseed(os.time())
-
     command.running = true
 
-    command.registerMethods()
+    dbmanager.start(SERVICE.NAME.DB)
 
     local errmsg = SERVICE.NAME.DB .. "->start"
     return 0, errmsg
@@ -51,7 +49,9 @@ end
 -- 服务停止·接口
 function command.STOP()
     command.running = false
-    command.methods = nil
+    
+    dbmanager.stop()
+    
     database.close(command.dbconn)
     command.dbconn = nil
 
@@ -59,37 +59,15 @@ function command.STOP()
     return 0, errmsg
 end
 
--- 注册业务处理接口
-function command.registerMethods()
-    if command.methods == nil then
-		command.methods = {}
-    end
-    command.methods[DB_CMD.SUB_UPDATE_MATCH_SERVER_INFOS] = {func = logic.syncMatchServerInfo, desc="同步匹配服务器数据"}
-    command.methods[DB_CMD.SUB_UPDATE_ROOM_SERVER_INFOS] = {func = logic.syncRoomServerOnlineCount, desc="更新房间在线用户数"}
-    command.methods[DB_CMD.SUB_GAME_LOG] = {func = logic.writeGameLog, desc="写游戏记录"}
-    command.methods[DB_CMD.SUB_GAME_SCORE_CHANGE_LOG] = {func = logic.writeScoreChangeLog, desc="写玩家金币变化"}
-    dump(command.methods, SERVICE.NAME.DB .. ".command.methods")
-end
-
 -- DB消息處理接口
 function command.MESSAGE(mid, sid, content)
     skynet.error(string.format(SERVICE.NAME.DB .. ":> mid=%d sid=%d", mid, sid))
 
     if mid ~= DB_CMD.MDM_DB then
-        skynet.error("unknown " .. SERVICE.NAME.DB .. " message command")
+        skynet.error("unknown " .. SERVICE.NAME.DB .. " mid command")
     end
-
     -- 查询业务处理函数
-    local method = command.methods[sid]   
-    assert(method ~= nil)
-    if method then
-        local ret, err = method.func(command.dbconn, content)
-        if err ~= nil then
-            skynet.error(err)
-            return 1
-        end
-    end
-	return 0
+    return dbmanager.dispatch(command.dbconn, mid, sid, content)
 end
 
 local function dispatch()

@@ -90,7 +90,6 @@ function command._uploadServerInfo ()
                 room_online_count = command.online_count, -- 房间在线人数
             }
             logic.updateRoomInfo(roomInfo)
-            -- skyhelper.sendLocal(SERVICE.NAME.LOG, "message", LOG_CMD.MDM_LOG, LOG_CMD.SUB_UPDATE_ROOM_SERVER_INFOS, roomInfo)
         end
 
         -- 1. 每10秒写牌局日志到日志服务器
@@ -120,6 +119,7 @@ function command._uploadServerInfo ()
             table.insert(gamelog.cardInfo, {userId= 10001, cards={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'}})
             table.insert(gamelog.cardInfo, {userId= 10002, cards={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'}})
             table.insert(gamelog.cardInfo, {userId= 10003, cards={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'}})
+            skynet.error("写牌局日志到日志服务器")
             logic.writeGameLog(gamelog)
             
             -- 2. 写玩家分数日志到日志服务器
@@ -128,6 +128,7 @@ function command._uploadServerInfo ()
             table.insert(gameScoreChangeLog, {userId = 10001, score = 10, changeScore = -10, beforScore = 10000})
             table.insert(gameScoreChangeLog, {userId = 10002, score = 10, changeScore = -20, beforScore = 10000})
             table.insert(gameScoreChangeLog, {userId = 10003, score = 10, changeScore = -30, beforScore = 10000})
+            skynet.error("写玩家分数日志到日志服务器")
             logic.writeGameScoreChangeLog(gameScoreChangeLog)
         end
 

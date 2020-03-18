@@ -4,7 +4,7 @@ package.path = package.path .. ";./service/redis_server/?.lua;"
 local skynet = require("skynet")
 local service = require("skynet.service")
 local redis = require("skynet.db.redis")
-local logic = require("redis_logic")
+local redismgr = require("redis_manager")
 
 require("skynet.manager")
 require("common.export")
@@ -79,7 +79,6 @@ local command = {
 	redisConn = nil,					-- redis连接
 	syncinterval = 30, 					-- 同步DB时间间隔，秒·单位
 	conf = nil, 						-- redis配置
-	methods = nil 						-- 业务处理接口映射表
 }
 
 function command.START(conf)
@@ -95,7 +94,7 @@ function command.START(conf)
 	
 	command.running = true
 
-	command.registerMethods()
+	redismgr.start(SERVICE.NAME.REDIS)
 
 	-- 定时同步数据到dbserver
 	skynet.fork(command._syncdbserver)
@@ -106,7 +105,9 @@ end
 
 function command.STOP()
 	command.running = false
-	command.methods = nil
+	
+	redismgr.stop()
+
 	command.redisConn:disconnect()
 	command.redisdb = nil
 
@@ -114,35 +115,17 @@ function command.STOP()
     return 0, errmsg
 end
 
-function command.registerMethods()
-	if command.methods == nil then
-		command.methods = {}
-	end
-    command.methods[REDIS_CMD.SUB_UPDATE_MATCH_SERVER_INFOS] = {func = logic.saveMatchServerInfo, desc="更新匹配服务器数据"}
-    command.methods[REDIS_CMD.SUB_UPDATE_ROOM_SERVER_INFOS] = {func = logic.saveRoomServerInfo, desc="更新房间服务器数据"}
-	dump(command.methods, SERVICE.NAME.REDIS .. ".command.methods")
-end
-
 -- REDIS消息處理接口
 function command.MESSAGE(mid, sid, content)
 	skynet.error(string.format(SERVICE.NAME.REDIS .. ":> mid=%d sid=%d", mid, sid))
 
 	if mid ~= REDIS_CMD.MDM_REDIS then
-		skynet.error("unknown " .. SERVICE.NAME.REDIS .. " message command")
-		return -1
+		local errmsg = "unknown " .. SERVICE.NAME.REDIS .. " message command"
+		skynet.error(errmsg)
+		return -1, errmsg
 	end
 
-    -- 查询业务处理函数
-    local method = command.methods[sid]
-    assert(method ~= nil)
-    if method then
-        local ret, err = method.func(command.redisConn, content)
-        if err ~= nil then
-            skynet.error(err)
-            return 1
-        end
-    end
-	return 0
+	return redismgr.dispatch(command.redisConn, mid, sid, content)
 end
 
 -- 定时同步数据到数据库
@@ -157,12 +140,12 @@ function command._syncdbserver()
 		if math.fmod(now.sec, command.syncinterval) == 0 then
 			
 			-- 1. 同步匹配服务器数据
-			-- redishelper.syncMatchServerInfo(command.redisConn)
-			skynet.fork(redishelper.syncMatchServerInfo, command.redisConn)
+			-- logic.syncMatchServerInfo(command.redisConn)
+			skynet.fork(logic.syncMatchServerInfo, command.redisConn)
 
 			-- 2. 同步房间服务器数据
-			-- redishelper.syncRoomServerOnlineCount(command.redisConn)
-			skynet.fork(redishelper.syncRoomServerOnlineCount, command.redisConn)
+			-- logic.syncRoomServerOnlineCount(command.redisConn)
+			skynet.fork(logic.syncRoomServerOnlineCount, command.redisConn)
         end
     end
 end

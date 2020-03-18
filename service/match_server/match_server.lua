@@ -88,7 +88,7 @@ function command._uploadServerInfo()
         -- 按秒·上报
         if math.fmod(now.sec, 1) == 0 then
             -- skynet.error("系统时间", os.date("%Y-%m-%d %H:%M:%S", os.time(now)))
-            
+            skynet.error("更新匹配服务器数据（匹配队列等待人数，已经成功匹配的次数，匹配时长）")
             local serverInfo = {
                 server_id = command.server_id,                          -- 服务ID
                 server_name = command.server_name,                      -- 服务名字
@@ -97,7 +97,18 @@ function command._uploadServerInfo()
                 match_time = command.running_time - command.start_time, -- 匹配时长
             }
             logic.updateServerInfo(serverInfo)
-         end
+        end
+
+        -- 获取用户信息
+        if math.fmod(now.sec, 5) == 0 then
+            skynet.error("查询用户信息")
+            local result, err = logic.queryUserInfo({userId=10000})
+            if err == nil then
+                dump(result, "用户信息")
+            else
+                skynet.error(err)
+            end
+        end
 
         -- 按分钟·上报
         if now.sec == 0 and math.fmod(now.min, 1) == 0 then

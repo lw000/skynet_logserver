@@ -4,25 +4,16 @@ local database = require("database.database")
 require("common.export")
 
 local logic = {
-
 }
-
-function logic.checkparcm(dbconn, content)
-    assert(dbconn ~= nil)
-    assert(content ~= nil)
-    if dbconn == nil then
-        return -1
-    end
-    if content == nil then
-        return -1
-    end
-    return 0
-end
 
 -- 获取用户信息
 function logic.queryUserInfo(dbconn, content)
-    local sql = [[select * from user]]
-    local result, err = database.query(dbconn, sql)
+    if content == nil or content.userId == nil then
+        return nil, "参数错误"
+    end
+
+    local sql = [[select * from user where userId=?;]]
+    local result, err = database.execute(dbconn, sql, content.userId)
     if err ~= nil then
         skynet.error(err)
         return nil, err
@@ -133,6 +124,11 @@ function logic.writeGameLog(dbconn, content)
 end
 
 -- 写玩家金币变化记录
+--[[
+    返回值：
+    成功：
+    失败：
+]]
 function logic.writeScoreChangeLog(dbconn, content)
     assert(dbconn ~= nil)
     assert(content ~= nil)
@@ -160,7 +156,6 @@ function logic.writeScoreChangeLog(dbconn, content)
             return 3, err
         end
     end
-
     return 0, nil
 end
 

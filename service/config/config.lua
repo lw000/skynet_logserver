@@ -31,6 +31,7 @@ DB_CMD = {
     SUB_UPDATE_ROOM_SERVER_INFOS = 0x0002,      -- 更新房间服务器（在线人数）
     SUB_GAME_LOG = 0x0003,                      -- 玩家牌局日志
     SUB_GAME_SCORE_CHANGE_LOG = 0x0004,         -- 玩家分数日志
+    SUB_USER_INFO = 0x0005,                     -- 获取用户信息
 }
 
 -- REDIS服务·命令
@@ -47,6 +48,7 @@ LOG_CMD = {
     SUB_UPDATE_ROOM_SERVER_INFOS = 0x0002,      -- 更新房间服务器（在线人数）
     SUB_GAME_LOG = 0x0003,                      -- 玩家牌局日志
     SUB_GAME_SCORE_CHANGE_LOG = 0x0004,         -- 玩家分数日志
+    SUB_USER_INFO = 0x0005,                     -- 获取用户信息
 }
 
 -- dump(DB_CMD, "DB_CMD")
