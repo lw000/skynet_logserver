@@ -26,6 +26,10 @@ function manager.stop()
 end
 
 function manager.dispatch(redisConn, mid, sid, content)
+    assert(redisConn ~= nil)
+    assert(mid ~= nil and mid >= 0)
+    assert(mid ~= nil and sid >= 0)
+    
     -- 查询业务处理函数
     local method = manager.methods[sid] 
     assert(method ~= nil)

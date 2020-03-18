@@ -60,7 +60,7 @@ function logic.syncMatchServerInfo(dbconn, content)
 end
 
 -- 同步房间在线用户
-function logic.syncRoomServerOnlineCount(dbconn, content)
+function logic.syncRoomServerInfo(dbconn, content)
     assert(dbconn ~= nil)
     assert(content ~= nil)
     if dbconn == nil then

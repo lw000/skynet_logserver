@@ -16,8 +16,8 @@ require("config.config")
 local command = {
     servertype = SERVICE.TYPE.MATCH,    -- 服务类型
     servername = SERVICE.NAME.MATCH,  	-- 服务名
-    server_id = -1,                     -- 服务ID
-    server_name = "",                   -- 服务名称
+    match_server_id = -1,               -- 服务ID
+    match_server_name = "",             -- 服务名称
     match_queue_length = 0,             -- 匹配队列等待人数
     match_success_count = 0,            -- 成功匹配的次数
     running_time = 0,                   -- 匹配时长
@@ -31,8 +31,8 @@ function command.START(conf)
 
     math.randomseed(os.time())
 
-    command.server_id = conf.server_id
-    command.server_name = conf.server_name
+    command.match_server_id = conf.server_id
+    command.match_server_name = conf.server_name
     assert(command.server_id ~= nil or command.server_id ~= -1)
     assert(command.server_name ~= nil or command.server_name ~= "")
 
@@ -91,8 +91,8 @@ function command._uploadServerInfo()
             -- skynet.error("系统时间", os.date("%Y-%m-%d %H:%M:%S", os.time(now)))
             skynet.error("更新匹配服务器数据（匹配队列等待人数，已经成功匹配的次数，匹配时长）")
             local serverInfo = {
-                server_id = command.server_id,                          -- 服务ID
-                server_name = command.server_name,                      -- 服务名字
+                server_id = command.match_server_id,                    -- 服务ID
+                server_name = command.match_server_name,                -- 服务名字
                 match_queue_length = command.match_queue_length,        -- 匹配队列等待人数
                 match_success_count = command.match_success_count,      -- 成功匹配的次数
                 match_time = command.running_time - command.start_time, -- 匹配时长
