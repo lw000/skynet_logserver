@@ -12,7 +12,7 @@ SERVICE = {
         LOG     = 6,    -- 日志服务
     },
     -- 服务名字
-    NAMES = {
+    NAME = {
         LOGON   = ".logon_server",      -- 登录服务
         MATCH   = ".match_server",      -- 匹配服务
         ROOM    = ".room_server",       -- 房间服务

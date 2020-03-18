@@ -20,7 +20,7 @@ function command.START()
     command.running = true
     command.registerMethods()
 
-    local errmsg = SERVICE.NAMES.LOG .. "->start"
+    local errmsg = SERVICE.NAME.LOG .. "->start"
     return 0, errmsg
 end
 
@@ -28,7 +28,7 @@ function command.STOP()
     command.running = false
     command.methods = nil
 
-    local errmsg = SERVICE.NAMES.LOG .. "->stop"
+    local errmsg = SERVICE.NAME.LOG .. "->stop"
     return 0, errmsg
 end
 
@@ -41,15 +41,15 @@ function command.registerMethods()
     command.methods[LOG_CMD.SUB_UPDATE_ROOM_SERVER_INFOS]   = {func = loghelper.saveRoomServerInfo, desc="更新房间服务器数据"}
     command.methods[LOG_CMD.SUB_GAME_LOG]                   = {func = loghelper.writeGameLog, desc="写游戏记录"}
     command.methods[LOG_CMD.SUB_GAME_SCORE_CHANGE_LOG]      = {func = loghelper.writeScoreChangeLog, desc="写玩家金币变化记录"}
-    dump(command.methods, SERVICE.NAMES.LOG .. ".command.methods")
+    dump(command.methods, SERVICE.NAME.LOG .. ".command.methods")
 end
 
 -- LOG消息處理接口
 function command.MESSAGE(mid, sid, content)
-    skynet.error(string.format(SERVICE.NAMES.LOG .. ":> mid=%d sid=%d", mid, sid))
+    skynet.error(string.format(SERVICE.NAME.LOG .. ":> mid=%d sid=%d", mid, sid))
 
 	if mid ~= LOG_CMD.MDM_LOG then
-		skynet.error("unknown " .. SERVICE.NAMES.LOG .. " message command")
+		skynet.error("unknown " .. SERVICE.NAME.LOG .. " message command")
 		return -1
 	end
     
@@ -88,7 +88,7 @@ local function dispatch()
             end
         end
     )
-    skynet.register(SERVICE.NAMES.LOG)
+    skynet.register(SERVICE.NAME.LOG)
 end
 
 skynet.start(dispatch)

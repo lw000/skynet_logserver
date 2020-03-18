@@ -46,7 +46,7 @@ function command.START(conf)
     -- 上报服务器状态
     skynet.fork(command._uploadServerInfo)
 
-    local errmsg = SERVICE.NAMES.MATCH .. "->start"
+    local errmsg = SERVICE.NAME.MATCH .. "->start"
     return 0, errmsg
 end
 
@@ -54,7 +54,7 @@ end
 function command.STOP()
     command.running = false
 
-    local errmsg = SERVICE.NAMES.MATCH .. "->stop"
+    local errmsg = SERVICE.NAME.MATCH .. "->stop"
     return 0, errmsg
 end
 
@@ -96,7 +96,7 @@ function command._uploadServerInfo()
                 match_success_count = command.match_success_count,      -- 成功匹配的次数
                 match_time = command.running_time - command.start_time, -- 匹配时长
             }
-            skyhelper.sendLocal(SERVICE.NAMES.LOG, "message", LOG_CMD.MDM_LOG, LOG_CMD.SUB_UPDATE_MATCH_SERVER_INFOS, serverInfo)
+            skyhelper.sendLocal(SERVICE.NAME.LOG, "message", LOG_CMD.MDM_LOG, LOG_CMD.SUB_UPDATE_MATCH_SERVER_INFOS, serverInfo)
         end
 
         -- 按分钟·上报
@@ -124,7 +124,7 @@ local function dispatch()
             end
         end
     )
-    skynet.register(SERVICE.NAMES.MATCH)
+    skynet.register(SERVICE.NAME.MATCH)
 end
 
 skynet.start(dispatch)

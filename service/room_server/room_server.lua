@@ -48,7 +48,7 @@ function command.START(conf)
     -- 上报服务器状态
     skynet.fork(command._uploadServerInfo)
     
-    local errmsg = SERVICE.NAMES.ROOM .. "->start"
+    local errmsg = SERVICE.NAME.ROOM .. "->start"
     return 0, errmsg
 end
 
@@ -56,7 +56,7 @@ end
 function command.STOP()
     command.running = false
 
-    local errmsg = SERVICE.NAMES.ROOM .. "->stop"
+    local errmsg = SERVICE.NAME.ROOM .. "->stop"
     return 0, errmsg
 end
 
@@ -88,7 +88,7 @@ function command._uploadServerInfo ()
                 room_name = command.room_name, -- 房间名字
                 room_online_count = command.online_count, -- 房间在线人数
             }
-            skyhelper.sendLocal(SERVICE.NAMES.LOG, "message", LOG_CMD.MDM_LOG, LOG_CMD.SUB_UPDATE_ROOM_SERVER_INFOS, roomInfo)
+            skyhelper.sendLocal(SERVICE.NAME.LOG, "message", LOG_CMD.MDM_LOG, LOG_CMD.SUB_UPDATE_ROOM_SERVER_INFOS, roomInfo)
         end
 
         -- 1. 每10秒写牌局日志到日志服务器
@@ -115,7 +115,7 @@ function command._uploadServerInfo ()
             table.insert(gamelog.cardInfo, {userId= 10001, cards={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'}})
             table.insert(gamelog.cardInfo, {userId= 10002, cards={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'}})
             table.insert(gamelog.cardInfo, {userId= 10003, cards={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'}})
-            skyhelper.sendLocal(SERVICE.NAMES.LOG, "message", LOG_CMD.MDM_LOG, LOG_CMD.SUB_GAME_LOG, gamelog)
+            skyhelper.sendLocal(SERVICE.NAME.LOG, "message", LOG_CMD.MDM_LOG, LOG_CMD.SUB_GAME_LOG, gamelog)
 
             
             -- 2. 写玩家分数日志到日志服务器
@@ -125,7 +125,7 @@ function command._uploadServerInfo ()
             table.insert(gameScoreChangeLog, {userId = 10001, score = 10, changeScore = -10, beforScore = 10000})
             table.insert(gameScoreChangeLog, {userId = 10002, score = 10, changeScore = -20, beforScore = 10000})
             table.insert(gameScoreChangeLog, {userId = 10003, score = 10, changeScore = -30, beforScore = 10000})
-            skyhelper.sendLocal(SERVICE.NAMES.LOG, "message", LOG_CMD.MDM_LOG, LOG_CMD.SUB_GAME_SCORE_CHANGE_LOG, gameScoreChangeLog)
+            skyhelper.sendLocal(SERVICE.NAME.LOG, "message", LOG_CMD.MDM_LOG, LOG_CMD.SUB_GAME_SCORE_CHANGE_LOG, gameScoreChangeLog)
         end
 
         -- 按分钟·汇报
@@ -153,7 +153,7 @@ local function dispatch()
             end
         end
     )
-    skynet.register(SERVICE.NAMES.ROOM)
+    skynet.register(SERVICE.NAME.ROOM)
 end
 
 skynet.start(dispatch)

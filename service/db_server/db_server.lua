@@ -35,7 +35,7 @@ function command.START(conf)
     command.dbconn = database.open(command.conf)
     assert(command.dbconn ~= nil)
     if command.dbconn == nil then
-        return 1, SERVICE.NAMES.DB .. "->fail"
+        return 1, SERVICE.NAME.DB .. "->fail"
     end
 
     math.randomseed(os.time())
@@ -44,7 +44,7 @@ function command.START(conf)
 
     command.registerMethods()
 
-    local errmsg = SERVICE.NAMES.DB .. "->start"
+    local errmsg = SERVICE.NAME.DB .. "->start"
     return 0, errmsg
 end
 
@@ -55,7 +55,7 @@ function command.STOP()
     database.close(command.dbconn)
     command.dbconn = nil
 
-    local errmsg = SERVICE.NAMES.DB .. "->stop"
+    local errmsg = SERVICE.NAME.DB .. "->stop"
     return 0, errmsg
 end
 
@@ -68,15 +68,15 @@ function command.registerMethods()
     command.methods[DB_CMD.SUB_UPDATE_ROOM_SERVER_INFOS] = {func = dbhelper.syncRoomServerOnlineCount, desc="更新房间在线用户数"}
     command.methods[DB_CMD.SUB_GAME_LOG] = {func = dbhelper.writeGameLog, desc="写游戏记录"}
     command.methods[DB_CMD.SUB_GAME_SCORE_CHANGE_LOG] = {func = dbhelper.writeScoreChangeLog, desc="写玩家金币变化"}
-    dump(command.methods, SERVICE.NAMES.DB .. ".command.methods")
+    dump(command.methods, SERVICE.NAME.DB .. ".command.methods")
 end
 
 -- DB消息處理接口
 function command.MESSAGE(mid, sid, content)
-    skynet.error(string.format(SERVICE.NAMES.DB .. ":> mid=%d sid=%d", mid, sid))
+    skynet.error(string.format(SERVICE.NAME.DB .. ":> mid=%d sid=%d", mid, sid))
 
     if mid ~= DB_CMD.MDM_DB then
-        skynet.error("unknown " .. SERVICE.NAMES.DB .. " message command")
+        skynet.error("unknown " .. SERVICE.NAME.DB .. " message command")
     end
 
     -- 查询业务处理函数
@@ -114,7 +114,7 @@ local function dispatch()
             end
         end
     )
-    skynet.register(SERVICE.NAMES.DB)
+    skynet.register(SERVICE.NAME.DB)
 end
 
 skynet.start(dispatch)
