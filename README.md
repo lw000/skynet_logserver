@@ -6,6 +6,10 @@
 3. redis服务负责数据存储到redis。
 4. db服务负责数据存储到到mysql。
 
+部署：
+1. 导入数据库脚本sql/test.sql
+2. 安装redis
+
 main.lua            单节点服务启动入口
 
 代码结构
