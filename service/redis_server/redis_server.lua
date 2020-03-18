@@ -8,7 +8,7 @@ local redismgr = require("redis_manager")
 
 require("skynet.manager")
 require("common.export")
-require("config.config")
+require("core.define")
 
 local conf = {
 	host = "127.0.0.1" ,
@@ -100,8 +100,7 @@ function command.START(conf)
 	-- 定时同步数据到dbserver
 	skynet.fork(command._syncdbserver)
 
-	local errmsg = command.servername .. " start"
-    return 0, errmsg
+    return 0
 end
 
 function command.STOP()
@@ -112,8 +111,7 @@ function command.STOP()
 	command.redisConn:disconnect()
 	command.redisdb = nil
 
-	local errmsg = command.servername .. " stop"
-    return 0, errmsg
+    return 0
 end
 
 -- REDIS消息處理接口

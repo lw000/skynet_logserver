@@ -6,7 +6,7 @@ local database = require("database.database")
 local dbmanager = require("db_manager")
 require("skynet.manager")
 require("common.export")
-require("config.config")
+require("core.define")
 
 --[[
     db数据库服务
@@ -43,8 +43,7 @@ function command.START(conf)
 
     dbmanager.start(command.servername)
 
-    local errmsg = command.servername .. " start"
-    return 0, errmsg
+    return 0
 end
 
 -- 服务停止·接口
@@ -55,9 +54,8 @@ function command.STOP()
     
     database.close(command.dbconn)
     command.dbconn = nil
-
-    local errmsg = command.servername .. " stop"
-    return 0, errmsg
+    
+    return 0
 end
 
 -- DB消息處理接口

@@ -6,7 +6,7 @@ local service = require("skynet.service")
 local datacenter = require("skynet.datacenter")
 local logmgr = require("log_manager")
 require("skynet.manager")
-require("config.config")
+require("core.define")
 
 local command = {
     servertype = SERVICE.TYPE.LOG,  -- 服务类型
@@ -25,17 +25,13 @@ function command.START()
     -- dump(datacenter.get("debug"), "debug")
     -- dump(datacenter.get("release"), "release")
     -- dump(datacenter.get("config"), "config")
-
-    local errmsg = command.servername .. " start"
-    return 0, errmsg
+    return 0
 end
 
 function command.STOP()
     command.running = false
     logmgr.stop()
-
-    local errmsg = command.servername .. " stop"
-    return 0, errmsg
+    return 0
 end
 
 -- LOG消息處理接口

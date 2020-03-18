@@ -8,7 +8,6 @@ local skyhelper = {
 -- 参数检查
 local function checkparam(servername, rpcname, mid, sid)
     assert(type(servername) == "string" and servername ~= "")
-    assert(type(servername) == "string")
     assert(type(rpcname) == "string" and rpcname ~= "" )
     assert(type(mid) == "number" and mid > 0)
     assert(type(sid) == "number" and sid > 0)

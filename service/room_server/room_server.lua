@@ -7,30 +7,29 @@ local skyhelper = require("skycommon.helper")
 local logic = require("room_logic")
 require("skynet.manager")
 require("common.export")
-require("config.config")
+require("core.define")
 
 --[[
     实时将自己在线信息实时写入redis；
     在线信息：当前房间人数
 ]]
 
-
 -- 玩家下注信息
--- [{"userId":1000,"bet":1000},{"userId":1000,"bet":1000},{"userId":1000,"bet":1000},{"userId":1000,"bet":1000},{"userId":1000,"bet":1000},{"userId":1000,"bet":1000},{"userId":1000,"bet":1000},{"userId":1000,"bet":1000},{"userId":1000,"bet":1000},{"userId":1000,"bet":1000}]
+-- [{"userId":10000,"bet":1000},{"userId":10001,"bet":1000},{"userId":10002,"bet":1000},{"userId":10003,"bet":1000}]
 
 -- 玩家结算信息
--- [{"userId":1000,"score":1000},{"userId":1000,"score":1000},{"userId":1000,"score":1000},{"userId":1000,"score":1000},{"userId":1000,"score":1000},{"userId":1000,"score":1000}]
+-- [{"userId":10000,"score":1000},{"userId":10001,"score":1000},{"userId":10002,"score":1000},{"userId":10003,"score":1000}]
 
 -- 玩家牌面值信息
--- [{"userId":1000,"cards":["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"]},{"userId":1000,"cards":["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"]},{"userId":1000,"cards":["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"]},{"userId":1000,"cards":["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"]},{"userId":1000,"cards":["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"]},{"userId":1000,"cards":["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"]}]
+-- [{"userId":10000,"cards":["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"]},{"userId":10001,"cards":["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"]},{"userId":10002,"cards":["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"]},{"userId":10003,"cards":["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"]}]
 
 local command = {
     servertype = SERVICE.TYPE.ROOM,     -- 服务类型
     servername = SERVICE.NAME.ROOM,  	-- 服务名
-    room_id = 0,                        -- 房间ID
-    room_name = "",                     -- 房间名字
+    room_id = 0,                        -- 房间服务ID
+    room_name = "",                     -- 房间服务名
+    running = false,                     -- 服务器状态
     online_count = 0,                   -- 房间在线人数
-    running = false                     -- 服务器状态
 }
 
 -- 服务启动·接口
@@ -38,36 +37,32 @@ function command.START(conf)
     assert(conf ~= nil)
     -- dump(conf, "conf")
 
-    math.randomseed(os.time())
-
     command.room_id = conf.room_id
     command.room_name = conf.room_name
     command.running = true
 
-    -- 房间服务业务
-    skynet.fork(command._ai)
+    math.randomseed(os.time())
+
+    -- 房间服务·主业务
+    skynet.fork(command._run)
 
     -- 上报服务器状态
     skynet.fork(command._uploadServerInfo)
     
-    local errmsg = command.servername .. " start"
-    return 0, errmsg
+    return 0
 end
 
 -- 服务停止·接口
 function command.STOP()
     command.running = false
-
-    local errmsg = command.servername .. " stop"
-    return 0, errmsg
+    
+    return 0
 end
 
-
--- 房间服务业务
-function command._ai ()
+-- 房间服务·主业务
+function command._run ()
     while command.running do
         skynet.sleep(100)
-
         command.online_count = math.random(100, 150)
     end
 end
@@ -82,8 +77,8 @@ function command._uploadServerInfo ()
         -- skynet.error("系统时间", os.date("%Y-%m-%d %H:%M:%S", os.time(now)))
 
         -- 每秒更新房间在线用户数到日志服务
-        if math.fmod(now.sec, 1) == 0 then            
-            -- 1. 更新房间在线用户数
+        if math.fmod(now.sec, 1) == 0 then
+            -- 更新房间服务器数据（在线用户数）
             skynet.error("更新房间服务器数据（在线用户数）")
             local roomInfo = {
                 room_id = command.room_id, -- 房间ID

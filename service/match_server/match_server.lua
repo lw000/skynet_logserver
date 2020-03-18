@@ -6,7 +6,7 @@ local logic = require("match_logic")
 
 require("skynet.manager")
 require("common.export")
-require("config.config")
+require("core.define")
 
 --[[
     每秒将服务器状态实时写入到redis；
@@ -16,8 +16,8 @@ require("config.config")
 local command = {
     servertype = SERVICE.TYPE.MATCH,    -- 服务类型
     servername = SERVICE.NAME.MATCH,  	-- 服务名
-    match_server_id = -1,               -- 服务ID
-    match_server_name = "",             -- 服务名称
+    match_server_id = -1,               -- 匹配服务器ID
+    match_server_name = "",             -- 匹配服务器名称
     match_queue_length = 0,             -- 匹配队列等待人数
     match_success_count = 0,            -- 成功匹配的次数
     running_time = 0,                   -- 匹配时长
@@ -42,29 +42,26 @@ function command.START(conf)
     command.start_time = skynet.time()         -- 启动时间
     command.running = true                     -- 服务器状态
 
-    -- 启动ai
-    skynet.fork(command._ai)
+    -- 匹配服务器·主业务
+    skynet.fork(command._run)
 
     -- 上报服务器状态
     skynet.fork(command._uploadServerInfo)
 
-    local errmsg = command.servername .. " start"
-    return 0, errmsg
+    return 0
 end
 
 -- 服务停止·接口
 function command.STOP()
     command.running = false
-
-    local errmsg = command.servername .. " stop"
-    return 0, errmsg
+    
+    return 0
 end
 
--- 匹配逻辑
-function command._ai()
+-- 匹配服务器·主业务
+function command._run()
     while command.running do
         local now = os.date("*t")
-
         if math.fmod(now.sec, 1) == 0 then               
             -- 匹配队列等待人数
             command.match_queue_length = math.random(100, 150)
@@ -73,7 +70,6 @@ function command._ai()
             -- 运行时长
             command.running_time = skynet.time()
         end
-
         skynet.sleep(100)
     end
 end
@@ -102,13 +98,13 @@ function command._uploadServerInfo()
 
         -- 获取用户信息
         if math.fmod(now.sec, 5) == 0 then
-            skynet.error("查询用户信息")
-            local result, err = logic.queryUserInfo({userId=10000})
-            if err == nil then
-                dump(result, "用户信息")
-            else
-                skynet.error(err)
-            end
+            -- skynet.error("查询用户信息")
+            -- local result, err = logic.queryUserInfo({userId=10000})
+            -- if err == nil then
+            --     dump(result, "用户信息")
+            -- else
+            --     skynet.error(err)
+            -- end
         end
 
         -- 按分钟·上报

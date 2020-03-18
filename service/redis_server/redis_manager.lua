@@ -1,7 +1,7 @@
 local skynet = require("skynet")
 local logic = require("redis_logic")
 require("common.export")
-require("config.config")
+require("core.define")
 
 local manager = {
     methods = nil,      -- 业务处理接口映射表
