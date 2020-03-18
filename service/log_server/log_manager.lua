@@ -15,11 +15,11 @@ function manager.start(servername)
     if manager.methods == nil then
 		manager.methods = {}
     end
-    manager.methods[LOG_CMD.SUB_UPDATE_MATCH_SERVER_INFOS]  = {func = logic.saveMatchServerInfo, desc="更新匹配服务器数据"}
-    manager.methods[LOG_CMD.SUB_UPDATE_ROOM_SERVER_INFOS]   = {func = logic.saveRoomServerInfo, desc="更新房间服务器数据"}
-    manager.methods[LOG_CMD.SUB_GAME_LOG]                   = {func = logic.writeGameLog, desc="写游戏记录"}
-    manager.methods[LOG_CMD.SUB_GAME_SCORE_CHANGE_LOG]      = {func = logic.writeScoreChangeLog, desc="写玩家金币变化记录"}
-    manager.methods[LOG_CMD.SUB_USER_INFO]                  = {func = logic.queryUserInfo, desc="查询用户信息"}
+    manager.methods[LOG_CMD.SUB_UPDATE_MATCH_SERVER_INFOS]  = {func=logic.saveMatchServerInfo, desc="更新匹配服务器数据"}
+    manager.methods[LOG_CMD.SUB_UPDATE_ROOM_SERVER_INFOS]   = {func=logic.saveRoomServerInfo, desc="更新房间服务器数据"}
+    manager.methods[LOG_CMD.SUB_GAME_LOG]                   = {func=logic.writeGameLog, desc="写游戏记录"}
+    manager.methods[LOG_CMD.SUB_GAME_SCORE_CHANGE_LOG]      = {func=logic.writeScoreChangeLog, desc="写玩家金币变化记录"}
+    manager.methods[LOG_CMD.SUB_USER_INFO]                  = {func=logic.queryUserInfo, desc="查询用户信息"}
     
     -- dump(manager.methods, manager.servername .. ".command.methods")
 end

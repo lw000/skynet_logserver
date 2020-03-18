@@ -81,10 +81,10 @@ function command._uploadServerInfo()
 
         local now = os.date("*t")
         -- dump(now, "系统时间")
+        -- skynet.error("系统时间", os.date("%Y-%m-%d %H:%M:%S", os.time(now)))
 
         -- 按秒·上报
         if math.fmod(now.sec, 1) == 0 then
-            -- skynet.error("系统时间", os.date("%Y-%m-%d %H:%M:%S", os.time(now)))
             skynet.error("更新匹配服务器数据（匹配队列等待人数，已经成功匹配的次数，匹配时长）")
             local serverInfo = {
                 server_id = command.match_server_id,                    -- 服务ID

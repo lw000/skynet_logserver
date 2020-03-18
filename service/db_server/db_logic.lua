@@ -8,6 +8,10 @@ local logic = {
 
 -- 获取用户信息
 function logic.queryUserInfo(dbconn, content)
+    assert(dbconn ~= nil)
+    assert(content ~= nil)
+    assert(content.userId == nil)
+
     if content == nil or content.userId == nil then
         return nil, "参数错误"
     end
@@ -18,7 +22,7 @@ function logic.queryUserInfo(dbconn, content)
         skynet.error(err)
         return nil, err
     end
-    return result, nil
+    return result
 end
 
 -- 同步匹配服务器信息
@@ -26,7 +30,7 @@ function logic.syncMatchServerInfo(dbconn, content)
     assert(dbconn ~= nil)
     assert(content ~= nil)
     if dbconn == nil then
-        return 1, "db connect is nil"
+        return 1, "db is nil"
     end
 
     if content == nil then
@@ -37,10 +41,12 @@ function logic.syncMatchServerInfo(dbconn, content)
     dump(data, "数据库·匹配服务器状态")
 
     local sql = [[INSERT INTO matchServerInfo (serverId, serverName, matchQueueLength, matchSuccessCount, matchDuration, updateTime)
-        VALUES (?,?,?,?,?,?) 
-        ON DUPLICATE KEY UPDATE matchQueueLength=?, matchSuccessCount=?, matchDuration=?, updateTime=?;]]
+                        VALUES (?,?,?,?,?,?) 
+                        ON DUPLICATE KEY UPDATE matchQueueLength=?, matchSuccessCount=?, matchDuration=?, updateTime=?;]]
     local now = os.date("%Y-%m-%d %H:%M:%S", os.time())
-    local result, err = database.execute(dbconn, sql,
+    local result, err = database.execute(
+        dbconn,
+        sql,
         data.server_id,
         data.server_name,
         data.match_queue_length,
@@ -56,7 +62,7 @@ function logic.syncMatchServerInfo(dbconn, content)
         return 3, err
     end
 
-    return 0, nil
+    return 0
 end
 
 -- 同步房间在线用户
@@ -76,10 +82,12 @@ function logic.syncRoomServerInfo(dbconn, content)
 
     -- 写入数据库
     local sql = [[INSERT INTO roomServerInfo (roomId, roomName, roomOnlineCount, updateTime)
-        VALUES (?,?,?,?) 
-        ON DUPLICATE KEY UPDATE roomOnlineCount= ?, updateTime= ?;]]
+                        VALUES (?,?,?,?) 
+                        ON DUPLICATE KEY UPDATE roomOnlineCount= ?, updateTime= ?;]]
     local now = os.date("%Y-%m-%d %H:%M:%S", os.time())
-    local result, err = database.execute(dbconn, sql,
+    local result, err = database.execute(
+        dbconn,
+        sql,
         data.room_id,
         data.room_name,
         data.room_online_count,
@@ -91,7 +99,7 @@ function logic.syncRoomServerInfo(dbconn, content)
         return 3, err
     end
 
-    return 0, nil
+    return 0
 end
 
 -- 写玩家游戏记录
@@ -107,6 +115,7 @@ function logic.writeGameLog(dbconn, content)
     end
 
     dump(content, "数据库·玩家牌局日志")
+    
     local gameLogId = content.gameLogId
     local betScore = cjson.encode(content.betScore)
     local resultScore = cjson.encode(content.resultScore)
@@ -120,7 +129,7 @@ function logic.writeGameLog(dbconn, content)
         skynet.error(err)
         return 3, err
     end
-    return 0, nil
+    return 0
 end
 
 -- 写玩家金币变化记录
@@ -156,7 +165,7 @@ function logic.writeScoreChangeLog(dbconn, content)
             return 3, err
         end
     end
-    return 0, nil
+    return 0
 end
 
 return logic

@@ -29,13 +29,7 @@ function logic.saveRoomServerInfo(redisConn, content)
     return ok
 end
 
---[[
-    函數：同步匹配服务器信息
-    返回值：
-        成功: 0
-        失敗: 1, errmsg
-]]
-
+-- 同步匹配服务器信息
 function logic.syncMatchServerInfo(redisConn, content)
     local exists = redisConn:exists(rediskey_match_server)
     if not exists then
@@ -52,15 +46,8 @@ function logic.syncMatchServerInfo(redisConn, content)
     return 0
 end
 
---[[
-    函數：同步房间在线用户數
-    返回值：
-        成功: 0
-        失敗: 1, errmsg
-]]
+-- 同步房间服务器数据
 function logic.syncRoomServerInfo(redisConn, content)
-    -- 2. 同步房间服务器数据
-    
     local exists = redisConn:exists(rediskey_room_server)
     if not exists then
         local errmsg = "redis key [" .. rediskey_room_server .. "] not found"

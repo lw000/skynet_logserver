@@ -12,12 +12,12 @@ function manager.start(servername)
     assert(servername ~= nil) 
     manager.servername = servername
 
+    -- 注册业务处理接口
     if manager.methods == nil then
 		manager.methods = {}
     end
-    -- 注册业务处理接口
-    manager.methods[REDIS_CMD.SUB_UPDATE_MATCH_SERVER_INFOS] = {func = logic.syncMatchServerInfo, desc="同步匹配服务器数据"}
-    manager.methods[REDIS_CMD.SUB_UPDATE_ROOM_SERVER_INFOS]  = {func = logic.syncRoomServerInfo, desc="更新房间在线用户数"}  
+    manager.methods[REDIS_CMD.SUB_UPDATE_MATCH_SERVER_INFOS] = {func=logic.syncMatchServerInfo, desc="同步匹配服务器数据"}
+    manager.methods[REDIS_CMD.SUB_UPDATE_ROOM_SERVER_INFOS]  = {func=logic.syncRoomServerInfo, desc="更新房间在线用户数"}
     -- dump(manager.methods, manager.servername .. ".command.methods")
 end
 

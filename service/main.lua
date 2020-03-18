@@ -1,9 +1,9 @@
 package.path = ";./service/?.lua;" .. package.path
 local skynet = require("skynet")
-local datacenter = require("skynet.datacenter")
 local dns = require("skynet.dns")
-require("common.export")
+local datacenter = require("skynet.datacenter")
 local conf = require("config.config")
+require("common.export")
 
 -- local resolve_list = {
 -- 	"github.com",
