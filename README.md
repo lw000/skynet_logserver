@@ -9,44 +9,46 @@
 main.lua            单节点服务启动入口
 
 代码结构
-#### |service
-#### ├── common                  -- 公共函数库
-#### │   ├── core.lua
-#### │   ├── dump.lua
-#### │   ├── export.lua
-#### │   ├── function.lua
-#### │   ├── trackback.lua
-#### │   └── utils.lua
-#### ├── config                  -- 配置
-#### │   └── config.lua
-#### ├── db_server               -- DB服务
-#### │   ├── database
-#### │   │   └── database.lua
-#### │   ├── db_logic.lua
-#### │   ├── db_manager.lua
-#### │   └── db_server.lua
-#### ├── log_server              -- 日志服务
-#### │   ├── log_logic.lua
-#### │   ├── log_manager.lua
-#### │   └── log_server.lua
-#### ├── main_db.lua
-#### ├── main_log.lua
-#### ├── main.lua                -- 单节点服务入口
-#### ├── main_match.lua
-#### ├── main_redis.lua
-#### ├── main_room.lua
-#### ├── match_server            -- 匹配服务
-#### │   ├── match_logic.lua
-#### │   └── match_server.lua
-#### ├── network
-#### │   ├── packet.lua
-#### │   └── ws.lua
-#### ├── redis_server            -- redis服务
-#### │   ├── redis_logic.lua
-#### │   ├── redis_manager.lua
-#### │   └── redis_server.lua
-#### ├── room_server             -- 房间服务
-#### │   ├── room_logic.lua
-#### │   └── room_server.lua
-#### └── skycommon
-####     └── helper.lua
+##### .
+##### ├── common
+##### │   ├── core.lua
+##### │   ├── dump.lua
+##### │   ├── export.lua
+##### │   ├── function.lua
+##### │   ├── trackback.lua
+##### │   └── utils.lua
+##### ├── config
+##### │   └── config.lua
+##### ├── core
+##### │   └── define.lua
+##### ├── db_server                     -- 数据库服务
+##### │   ├── database
+##### │   │   └── database.lua
+##### │   ├── db_logic.lua
+##### │   ├── db_manager.lua
+##### │   └── db_server.lua
+##### ├── log_server                    -- 日志服务
+##### │   ├── log_logic.lua
+##### │   ├── log_manager.lua
+##### │   └── log_server.lua
+##### ├── main_db.lua
+##### ├── main_log.lua
+##### ├── main.lua                      -- 主程序
+##### ├── main_match.lua
+##### ├── main_redis.lua
+##### ├── main_room.lua
+##### ├── match_server                  -- 匹配服务
+##### │   ├── match_logic.lua
+##### │   └── match_server.lua
+##### ├── network
+##### │   ├── packet.lua
+##### │   └── ws.lua
+##### ├── redis_server                  -- REDIS服务
+##### │   ├── redis_logic.lua
+##### │   ├── redis_manager.lua
+##### │   └── redis_server.lua
+##### ├── room_server                   -- 房间服务
+##### │   ├── room_logic.lua
+##### │   └── room_server.lua
+##### └── skycommon
+#####     └── helper.lua
