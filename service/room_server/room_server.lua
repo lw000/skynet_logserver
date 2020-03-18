@@ -25,7 +25,8 @@ require("config.config")
 -- [{"userId":1000,"cards":["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"]},{"userId":1000,"cards":["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"]},{"userId":1000,"cards":["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"]},{"userId":1000,"cards":["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"]},{"userId":1000,"cards":["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"]},{"userId":1000,"cards":["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"]}]
 
 local command = {
-    server_type = SERVICE.TYPE.ROOM,    -- 服务ID
+    servertype = SERVICE.TYPE.ROOM,     -- 服务类型
+    servername = SERVICE.NAME.ROOM,  	-- 服务名
     room_id = 0,                        -- 房间ID
     room_name = "",                     -- 房间名字
     online_count = 0,                   -- 房间在线人数
@@ -49,7 +50,7 @@ function command.START(conf)
     -- 上报服务器状态
     skynet.fork(command._uploadServerInfo)
     
-    local errmsg = SERVICE.NAME.ROOM .. "->start"
+    local errmsg = command.servername .. "->start"
     return 0, errmsg
 end
 
@@ -57,7 +58,7 @@ end
 function command.STOP()
     command.running = false
 
-    local errmsg = SERVICE.NAME.ROOM .. "->stop"
+    local errmsg = command.servername .. "->stop"
     return 0, errmsg
 end
 
@@ -149,11 +150,11 @@ local function dispatch()
             if f then
                 skynet.ret(skynet.pack(f(...)))
             else
-                skynet.error(string.format(SERVICE.NAME.ROOM .. " unknown command %s", tostring(cmd)))
+                skynet.error(string.format(command.servername .. " unknown command %s", tostring(cmd)))
             end
         end
     )
-    skynet.register(SERVICE.NAME.ROOM)
+    skynet.register(command.servername)
 end
 
 skynet.start(dispatch)

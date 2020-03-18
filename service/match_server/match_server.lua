@@ -14,7 +14,8 @@ require("config.config")
 ]]
 
 local command = {
-    server_type = SERVICE.TYPE.MATCH,   -- 服务类型
+    servertype = SERVICE.TYPE.MATCH,    -- 服务类型
+    servername = SERVICE.NAME.MATCH,  	-- 服务名
     server_id = -1,                     -- 服务ID
     server_name = "",                   -- 服务名称
     match_queue_length = 0,             -- 匹配队列等待人数
@@ -47,7 +48,7 @@ function command.START(conf)
     -- 上报服务器状态
     skynet.fork(command._uploadServerInfo)
 
-    local errmsg = SERVICE.NAME.MATCH .. "->start"
+    local errmsg = command.servername .. "->start"
     return 0, errmsg
 end
 
@@ -55,7 +56,7 @@ end
 function command.STOP()
     command.running = false
 
-    local errmsg = SERVICE.NAME.MATCH .. "->stop"
+    local errmsg = command.servername .. "->stop"
     return 0, errmsg
 end
 
@@ -127,11 +128,11 @@ local function dispatch()
             if f then
                 skynet.ret(skynet.pack(f(...)))
             else
-                skynet.error(string.format(SERVICE.NAME.MATCH .. " unknown command %s", tostring(cmd)))
+                skynet.error(string.format(command.servername .. " unknown command %s", tostring(cmd)))
             end
         end
     )
-    skynet.register(SERVICE.NAME.MATCH)
+    skynet.register(command.servername)
 end
 
 skynet.start(dispatch)

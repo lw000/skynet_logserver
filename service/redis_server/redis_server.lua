@@ -74,7 +74,8 @@ local function test_redis()
 end
 
 local command = {
-	server_type = SERVICE.TYPE.REDIS, 	-- 服务ID
+	servertype = SERVICE.TYPE.REDIS, 	-- 服务类型
+	servername = SERVICE.NAME.REDIS,  	-- 服务名
 	running = false,					-- 服务器状态
 	redisConn = nil,					-- redis连接
 	syncinterval = 30, 					-- 同步DB时间间隔，秒·单位
@@ -87,19 +88,19 @@ function command.START(conf)
 	command.redisConn = redis.connect(command.conf)
 	assert(command.redisConn ~= nil)
     if command.redisConn == nil then
-        return 1, SERVICE.NAME.REDIS .. "->fail"
+        return 1, command.servername .. "->fail"
 	end
 	
 	math.randomseed(os.time())
 	
 	command.running = true
 
-	redismgr.start(SERVICE.NAME.REDIS)
+	redismgr.start(command.servername)
 
 	-- 定时同步数据到dbserver
 	skynet.fork(command._syncdbserver)
 
-	local errmsg =  SERVICE.NAME.REDIS .. "->start"
+	local errmsg = command.servername .. "->start"
     return 0, errmsg
 end
 
@@ -111,16 +112,16 @@ function command.STOP()
 	command.redisConn:disconnect()
 	command.redisdb = nil
 
-	local errmsg = SERVICE.NAME.REDIS .. "->stop"
+	local errmsg = command.servername .. "->stop"
     return 0, errmsg
 end
 
 -- REDIS消息處理接口
 function command.MESSAGE(mid, sid, content)
-	skynet.error(string.format(SERVICE.NAME.REDIS .. ":> mid=%d sid=%d", mid, sid))
+	skynet.error(string.format(command.servername .. ":> mid=%d sid=%d", mid, sid))
 
 	if mid ~= REDIS_CMD.MDM_REDIS then
-		local errmsg = "unknown " .. SERVICE.NAME.REDIS .. " message command"
+		local errmsg = "unknown " .. command.servername .. " message command"
 		skynet.error(errmsg)
 		return -1, errmsg
 	end
@@ -160,11 +161,11 @@ local function dispatch()
             if f then
                 skynet.ret(skynet.pack(f(...)))
             else
-                skynet.error(string.format(SERVICE.NAME.REDIS .. " unknown command %s", tostring(cmd)))
+                skynet.error(string.format(command.servername .. " unknown command %s", tostring(cmd)))
             end
         end
     )
-    skynet.register(SERVICE.NAME.REDIS)
+    skynet.register(command.servername)
 end
 
 skynet.start(dispatch)
