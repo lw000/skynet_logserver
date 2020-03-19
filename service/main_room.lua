@@ -10,12 +10,11 @@ skynet.start(
             room_id = 10000,
             room_name = string.format("%s[%d]", "房间服务器", 10000),
         })
-        if ret ~= 0 then
+        if err ~= nil then
             skynet.error(ret, err)
             return
         end
-        skynet.error(ret, err)
-
+        
         skynet.exit()
     end
 )

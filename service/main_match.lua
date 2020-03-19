@@ -10,11 +10,10 @@ skynet.start(
             server_id = 1,
             server_name = string.format("%s[%d]", "匹配服务器", 1),
         })
-        if ret ~= 0 then
+        if err ~= nil then
             skynet.error(ret, err)
             return
         end
-        skynet.error(ret, err)
 
         skynet.exit()
     end

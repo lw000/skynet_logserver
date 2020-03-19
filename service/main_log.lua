@@ -1,5 +1,6 @@
 package.path = ";./service/?.lua;" .. package.path
 local skynet = require("skynet")
+local conf = require("config.config")
 require("common.export")
 
 local function test (name)
@@ -16,16 +17,15 @@ end
 skynet.start(
     function()
         -- 0. DEBUG服务
-        skynet.newservice("debug_console", "8000")
+        skynet.newservice("debug_console", conf.debugPort)
          
         -- log服务
         local log_server_id = skynet.uniqueservice(true, "log_server")
         local ret, err = skynet.call(log_server_id, "lua", "start")
-        if ret ~= 0 then
+        if err ~= nil then
             skynet.error(ret, err)
             return
         end
-        skynet.error(ret, err)
 
         -- repeat
         --     skynet.error("repeat until - 1")
