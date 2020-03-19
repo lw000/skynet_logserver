@@ -58,9 +58,9 @@ function command.STOP()
     return 0
 end
 
--- DB消息處理接口
+-- DB服务·消息处理接口
 function command.MESSAGE(mid, sid, content)
-    skynet.error(string.format(command.servername .. ":> mid=%d sid=%d", mid, sid))
+    -- skynet.error(string.format(command.servername .. ":> mid=%d sid=%d", mid, sid))
 
     if mid ~= DB_CMD.MDM_DB then
         skynet.error("unknown " .. command.servername .. " mid command")

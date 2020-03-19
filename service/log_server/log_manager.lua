@@ -15,11 +15,11 @@ function manager.start(servername)
     if manager.methods == nil then
 		manager.methods = {}
     end
-    manager.methods[LOG_CMD.SUB_UPDATE_MATCH_SERVER_INFOS]  = {func=logic.saveMatchServerInfo, desc="更新匹配服务器数据"}
-    manager.methods[LOG_CMD.SUB_UPDATE_ROOM_SERVER_INFOS]   = {func=logic.saveRoomServerInfo, desc="更新房间服务器数据"}
-    manager.methods[LOG_CMD.SUB_GAME_LOG]                   = {func=logic.writeGameLog, desc="写游戏记录"}
-    manager.methods[LOG_CMD.SUB_GAME_SCORE_CHANGE_LOG]      = {func=logic.writeScoreChangeLog, desc="写玩家金币变化记录"}
-    manager.methods[LOG_CMD.SUB_USER_INFO]                  = {func=logic.queryUserInfo, desc="查询用户信息"}
+    manager.methods[LOG_CMD.SUB_UPDATE_MATCH_SERVER_INFOS]  = {func=logic.onUpdateMatchServerInfo, desc="更新匹配服务器数据"}
+    manager.methods[LOG_CMD.SUB_UPDATE_ROOM_SERVER_INFOS]   = {func=logic.onUpdateRoomServerInfo, desc="更新房间服务器数据"}
+    manager.methods[LOG_CMD.SUB_GAME_LOG]                   = {func=logic.onWriteGameLog, desc="写游戏记录"}
+    manager.methods[LOG_CMD.SUB_GAME_SCORE_CHANGE_LOG]      = {func=logic.onWriteScoreChangeLog, desc="写玩家金币变化记录"}
+    manager.methods[LOG_CMD.SUB_USER_INFO]                  = {func=logic.onQueryUserInfo, desc="查询用户信息"}
     
     -- dump(manager.methods, manager.servername .. ".command.methods")
 end
@@ -33,7 +33,8 @@ function manager.dispatch(mid, sid, content)
     assert(mid ~= nil and sid >= 0)
 
     -- 查询业务处理函数
-    local method = manager.methods[sid]   
+    local method = manager.methods[sid]
+    -- dump(method,  manager.servername .. ".method")  
     assert(method ~= nil)
     if not method then
         local errmsg = "unknown " .. manager.servername .. " sid command" 

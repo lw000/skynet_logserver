@@ -11,26 +11,26 @@ local logic = {
 
 }
 
--- 保存配服务器信息
-function logic.saveMatchServerInfo(redisConn, content)
+-- 更新配服务器数据
+function logic.onUpdateMatchServerInfo(redisConn, content)
     local jsonstr = cjson.encode(content)
-    skynet.error("REDIS·更新匹配服务器状态", jsonstr)
+    skynet.error("REDIS·更新配服务器数据 " .. jsonstr)
     local ok = redisConn:hset(rediskey_match_server, content.server_id, jsonstr)
     -- skynet.error("redis:", ok)
     return ok
 end
 
--- 保存房间在线用户
-function logic.saveRoomServerInfo(redisConn, content)
+-- 更新房间服务器数据
+function logic.onUpdateRoomServerInfo(redisConn, content)
     local jsonstr = cjson.encode(content)
-    skynet.error("REDIS·更新房间服务器在线人数", jsonstr)
+    skynet.error("REDIS·更新房间服务器数据 " .. jsonstr)
     local ok = redisConn:hset(rediskey_room_server, content.room_id, jsonstr)
     -- skynet.error("redis:", ok)
     return ok
 end
 
 -- 同步匹配服务器信息
-function logic.syncMatchServerInfo(redisConn, content)
+function logic.syncMatchServerInfoToDB(redisConn, content)
     local exists = redisConn:exists(rediskey_match_server)
     if not exists then
         local errmsg = "redis key [" .. rediskey_match_server .. "] not found"
@@ -47,7 +47,7 @@ function logic.syncMatchServerInfo(redisConn, content)
 end
 
 -- 同步房间服务器数据
-function logic.syncRoomServerInfo(redisConn, content)
+function logic.syncRoomServerInfoToDB(redisConn, content)
     local exists = redisConn:exists(rediskey_room_server)
     if not exists then
         local errmsg = "redis key [" .. rediskey_room_server .. "] not found"

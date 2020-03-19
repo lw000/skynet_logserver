@@ -34,9 +34,9 @@ function command.STOP()
     return 0
 end
 
--- LOG消息處理接口
+-- LOG服务·消息处理接口
 function command.MESSAGE(mid, sid, content)
-    skynet.error(string.format(command.servername .. ":> mid=%d sid=%d", mid, sid))
+    -- skynet.error(string.format(command.servername .. ":> mid=%d sid=%d", mid, sid))
 
     if mid ~= LOG_CMD.MDM_LOG then
         local errmsg = "unknown " .. command.servername .. " message command"

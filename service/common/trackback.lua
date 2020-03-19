@@ -3,4 +3,5 @@ function __G__TRACKBACK__(msg)
     print("------------------------")
     print("LUA ERROR: " .. tostring(msg) .. "\n") -- 字符串连接（打印出消息）
     print(debug.traceback())
+    print("----------------------------------------")
 end

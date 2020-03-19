@@ -43,11 +43,20 @@ function command.START(conf)
     command.running = true                     -- 服务器状态
 
     -- 匹配服务器·主业务
-    skynet.fork(command._run)
+    skynet.fork(
+		function(...)
+			local ok = xpcall(
+				command._run,
+				__G__TRACKBACK__
+			)
+			if ok then
+				skynet.error("_run exit")
+			end
+		end
+	)
 
     -- 上报服务器状态
-    skynet.fork(command._uploadServerInfo)
-
+    skynet.timeout(100, command._uploadServerInfo)
     return 0
 end
 
@@ -69,6 +78,8 @@ function command._run()
             command.match_success_count = command.match_success_count + 1
             -- 运行时长
             command.running_time = skynet.time()
+
+            -- dump(command, command.servername .. ".command")
         end
         skynet.sleep(100)
     end
@@ -76,42 +87,33 @@ end
 
 -- 报告服务器信息
 function command._uploadServerInfo()
-    while command.running do
-        skynet.sleep(100)
-
-        local now = os.date("*t")
-        -- dump(now, "系统时间")
-        -- skynet.error("系统时间", os.date("%Y-%m-%d %H:%M:%S", os.time(now)))
-
-        -- 按秒·上报
-        if math.fmod(now.sec, 1) == 0 then
-            skynet.error("更新匹配服务器数据（匹配队列等待人数，已经成功匹配的次数，匹配时长）")
-            local serverInfo = {
-                server_id = command.match_server_id,                    -- 服务ID
-                server_name = command.match_server_name,                -- 服务名字
-                match_queue_length = command.match_queue_length,        -- 匹配队列等待人数
-                match_success_count = command.match_success_count,      -- 成功匹配的次数
-                match_time = command.running_time - command.start_time, -- 匹配时长
-            }
-            logic.updateServerInfo(serverInfo)
-        end
-
-        -- 获取用户信息
-        if math.fmod(now.sec, 5) == 0 then
-            -- skynet.error("查询用户信息")
-            -- local result, err = logic.queryUserInfo({userId=10000})
-            -- if err == nil then
-            --     dump(result, "用户信息")
-            -- else
-            --     skynet.error(err)
-            -- end
-        end
-
-        -- 按分钟·上报
-        if now.sec == 0 and math.fmod(now.min, 1) == 0 then
-
-        end
+    if command.running then
+        skynet.timeout(100, command._uploadServerInfo)
     end
+
+    -- 更新匹配服务器数据（匹配队列等待人数，已经成功匹配的次数，匹配时长）
+    skynet.fork(function()
+        -- skynet.error("更新匹配服务器数据（匹配队列等待人数，已经成功匹配的次数，匹配时长）")
+        local serverInfo = {
+            server_id = command.match_server_id,                    -- 服务ID
+            server_name = command.match_server_name,                -- 服务名字
+            match_queue_length = command.match_queue_length,        -- 匹配队列等待人数
+            match_success_count = command.match_success_count,      -- 成功匹配的次数
+            match_time = command.running_time - command.start_time, -- 匹配时长
+        }
+        logic.updateServerInfo(serverInfo)
+    end)
+
+    -- 查询用户信息
+    -- skynet.fork(function()
+    --     skynet.error("查询用户信息")
+    --     local result, err = logic.queryUserInfo({userId=10000})
+    --     if err == nil then
+    --         dump(result, "用户信息")
+    --     else
+    --         skynet.error(err)
+    --     end
+    -- end)
 end
 
 local function dispatch()

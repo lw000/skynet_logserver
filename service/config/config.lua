@@ -5,13 +5,13 @@ local config = {
     debug_port = 8000,
     -- db配置
     db = {
-        host_ = "127.0.0.1",
-        host = "192.168.0.102",
+        host = "127.0.0.1",
+        host_ = "192.168.0.102",
         port = 3306,
         database = "test",
         user = "root",
-        password_ = "LEvi123!",
-        password = "lwstar",
+        password = "LEvi123!",
+        password_ = "lwstar",
     },
     --redis配置
     redis = {
@@ -21,6 +21,6 @@ local config = {
     }
 }
 
-dump(config, "config")
+-- dump(config, "config")
 
 return config

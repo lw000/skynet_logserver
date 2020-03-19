@@ -4,6 +4,7 @@ package.path = package.path .. ";./service/redis_server/?.lua;"
 local skynet = require("skynet")
 local service = require("skynet.service")
 local redis = require("skynet.db.redis")
+local logic = require("redis_logic")
 local redismgr = require("redis_manager")
 
 require("skynet.manager")
@@ -78,7 +79,7 @@ local command = {
 	servername = SERVICE.NAME.REDIS,  	-- 服务名
 	running = false,					-- 服务器状态
 	redisConn = nil,					-- redis连接
-	syncinterval = 30, 					-- 同步DB时间间隔，秒·单位
+	syncInterval = 30, 					-- 同步DB时间（单位·秒）
 	conf = nil, 						-- redis配置
 }
 
@@ -98,8 +99,17 @@ function command.START(conf)
 	redismgr.start(command.servername)
 
 	-- 定时同步数据到dbserver
-	skynet.fork(command._syncdbserver)
-
+	skynet.fork(
+		function(...)
+			local ok = xpcall(
+				command._syncToDbserver,
+				__G__TRACKBACK__
+			)
+			if ok then
+				skynet.error("_syncToDbserver exit")
+			end
+		end
+	)
     return 0
 end
 
@@ -114,9 +124,9 @@ function command.STOP()
     return 0
 end
 
--- REDIS消息處理接口
+-- REDIS服务·消息处理接口
 function command.MESSAGE(mid, sid, content)
-	skynet.error(string.format(command.servername .. ":> mid=%d sid=%d", mid, sid))
+	-- skynet.error(string.format(command.servername .. ":> mid=%d sid=%d", mid, sid))
 
 	if mid ~= REDIS_CMD.MDM_REDIS then
 		local errmsg = "unknown " .. command.servername .. " message command"
@@ -128,24 +138,21 @@ function command.MESSAGE(mid, sid, content)
 end
 
 -- 定时同步数据到数据库
-function command._syncdbserver()
+function command._syncToDbserver()
     while command.running do
-        skynet.sleep(100)
-
-        local now = os.date("*t")
+		skynet.sleep(100)
+			
+		local now = os.date("*t")
         -- dump(now, "系统时间")
 
-        -- 按秒·同步数据到DB
-		if math.fmod(now.sec, command.syncinterval) == 0 then
-			
+		-- 每30秒同步一次配服务器和房间服务器数据
+		if math.fmod(now.sec, command.syncInterval) == 0 then
 			-- 1. 同步匹配服务器数据
-			-- logic.syncMatchServerInfo(command.redisConn)
-			skynet.fork(logic.syncMatchServerInfo, command.redisConn)
+			skynet.fork(logic.syncMatchServerInfoToDB, command.redisConn)
 
 			-- 2. 同步房间服务器数据
-			-- logic.syncRoomServerOnlineCount(command.redisConn)
-			skynet.fork(logic.syncRoomServerOnlineCount, command.redisConn)
-        end
+			skynet.fork(logic.syncRoomServerInfoToDB, command.redisConn)
+		end
     end
 end
 

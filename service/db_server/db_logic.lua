@@ -7,10 +7,10 @@ local logic = {
 }
 
 -- 获取用户信息
-function logic.queryUserInfo(dbconn, content)
+function logic.onQueryUserInfo(dbconn, content)
     assert(dbconn ~= nil)
     assert(content ~= nil)
-    assert(content.userId == nil)
+    assert(content.userId ~= nil and type(content.userId) == "number")
 
     if content == nil or content.userId == nil then
         return nil, "参数错误"
@@ -26,7 +26,7 @@ function logic.queryUserInfo(dbconn, content)
 end
 
 -- 同步匹配服务器信息
-function logic.syncMatchServerInfo(dbconn, content)
+function logic.onSyncMatchServerInfo(dbconn, content)
     assert(dbconn ~= nil)
     assert(content ~= nil)
     if dbconn == nil then
@@ -37,8 +37,10 @@ function logic.syncMatchServerInfo(dbconn, content)
         return 2, "content is nil"
     end
 
+    skynet.error("数据库·匹配服务器数据（匹配队列等待人数，已经成功匹配的次数，匹配时长）")
+
     local data = cjson.decode(content)
-    dump(data, "数据库·匹配服务器状态")
+    dump(data, "数据库·匹配服务器数据（匹配队列等待人数，已经成功匹配的次数，匹配时长）")
 
     local sql = [[INSERT INTO matchServerInfo (serverId, serverName, matchQueueLength, matchSuccessCount, matchDuration, updateTime)
                         VALUES (?,?,?,?,?,?) 
@@ -66,7 +68,7 @@ function logic.syncMatchServerInfo(dbconn, content)
 end
 
 -- 同步房间在线用户
-function logic.syncRoomServerInfo(dbconn, content)
+function logic.onSyncRoomServerInfo(dbconn, content)
     assert(dbconn ~= nil)
     assert(content ~= nil)
     if dbconn == nil then
@@ -77,8 +79,10 @@ function logic.syncRoomServerInfo(dbconn, content)
         return 2, "content is nil"
     end
 
+    skynet.error("数据库·更新房间服务器数据（在线用户数）")
+
     local data = cjson.decode(content)
-    dump(data, "数据库·更新房间服务器在线人数")
+    dump(data, "数据库·更新房间服务器数据（在线用户数）")
 
     -- 写入数据库
     local sql = [[INSERT INTO roomServerInfo (roomId, roomName, roomOnlineCount, updateTime)
@@ -103,7 +107,7 @@ function logic.syncRoomServerInfo(dbconn, content)
 end
 
 -- 写玩家游戏记录
-function logic.writeGameLog(dbconn, content)
+function logic.onWriteGameLog(dbconn, content)
     assert(dbconn ~= nil)
     assert(content ~= nil)
     if dbconn == nil then
@@ -138,7 +142,7 @@ end
     成功：
     失败：
 ]]
-function logic.writeScoreChangeLog(dbconn, content)
+function logic.onWriteScoreChangeLog(dbconn, content)
     assert(dbconn ~= nil)
     assert(content ~= nil)
     if dbconn == nil then
