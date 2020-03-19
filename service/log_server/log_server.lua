@@ -9,8 +9,8 @@ require("skynet.manager")
 require("core.define")
 
 local command = {
-    servertype = SERVICE.TYPE.LOG,  -- 服务类型
-    servername = SERVICE.NAME.LOG,  -- 服务名
+    servertype = SERVICE_CONF.LOG.TYPE,  -- 服务类型
+    servername = SERVICE_CONF.LOG.NAME,  -- 服务名
     server_name = "",               -- 服务名称
     running = false,	            -- 服务器状态
 }

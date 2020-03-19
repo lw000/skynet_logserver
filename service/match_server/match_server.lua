@@ -14,8 +14,8 @@ require("core.define")
 ]]
 
 local command = {
-    servertype = SERVICE.TYPE.MATCH,    -- 服务类型
-    servername = SERVICE.NAME.MATCH,  	-- 服务名
+    servertype = SERVICE_CONF.MATCH.TYPE,    -- 服务类型
+    servername = SERVICE_CONF.MATCH.NAME,  	-- 服务名
     match_server_id = -1,               -- 匹配服务器ID
     match_server_name = "",             -- 匹配服务器名称
     match_queue_length = 0,             -- 匹配队列等待人数

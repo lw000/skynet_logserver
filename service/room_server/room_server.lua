@@ -24,8 +24,8 @@ require("core.define")
 -- [{"userId":10000,"cards":["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"]},{"userId":10001,"cards":["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"]},{"userId":10002,"cards":["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"]},{"userId":10003,"cards":["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"]}]
 
 local command = {
-    servertype = SERVICE.TYPE.ROOM,     -- 服务类型
-    servername = SERVICE.NAME.ROOM,  	-- 服务名
+    servertype = SERVICE_CONF.ROOM.TYPE,     -- 服务类型
+    servername = SERVICE_CONF.ROOM.NAME,  	-- 服务名
     room_id = 0,                        -- 房间服务ID
     room_name = "",                     -- 房间服务名
     running = false,                     -- 服务器状态

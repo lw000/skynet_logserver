@@ -1,6 +1,16 @@
 require("common.export")
 
 -------------------------------------------------------------------------------------
+-- 服务配置
+SERVICE_CONF = {
+    LOGON = { TYPE= 1, NAME= ".logon_server", DESC= "登录服务" },
+    MATCH = { TYPE= 2, NAME= ".match_server", DESC= "匹配服务" },
+    ROOM =  { TYPE= 3, NAME= ".room_server",  DESC= "房间服务" },
+    REDIS = { TYPE= 4, NAME= ".redis_server", DESC= "缓存服务器" },
+    DB =    { TYPE= 5, NAME= ".db_server",    DESC= "数据服务器" },
+    LOG =   { TYPE= 6, NAME= ".log_server",   DESC= "日志服务器" },
+}
+
 SERVICE = {
     -- 服务器类型
     TYPE = {

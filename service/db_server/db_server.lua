@@ -13,8 +13,8 @@ require("core.define")
 ]]
 
 local command = {
-    servertype = SERVICE.TYPE.DB,   -- 服务类型
-    servername = SERVICE.NAME.DB,   -- 服务名
+    servertype = SERVICE_CONF.DB.TYPE,   -- 服务类型
+    servername = SERVICE_CONF.DB.NAME,   -- 服务名
     running = false,                -- 服务器状态
     dbconn = nil,                   -- db连接
     conf = nil,                     -- 数据库配置

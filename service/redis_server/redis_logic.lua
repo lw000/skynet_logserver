@@ -40,7 +40,7 @@ function logic.syncMatchServerInfoToDB(redisConn, content)
 
     local results = redisConn:hvals(rediskey_match_server)
     for k, v in pairs(results) do
-        skyhelper.sendLocal(SERVICE.NAME.DB, "message", DB_CMD.MDM_DB, DB_CMD.SUB_UPDATE_MATCH_SERVER_INFOS, v)
+        skyhelper.sendLocal(SERVICE_CONF.DB.NAME, "message", DB_CMD.MDM_DB, DB_CMD.SUB_UPDATE_MATCH_SERVER_INFOS, v)
     end
 
     return 0
@@ -57,7 +57,7 @@ function logic.syncRoomServerInfoToDB(redisConn, content)
 
     local results = redisConn:hvals(rediskey_room_server)
     for k, v in pairs(results) do
-        skyhelper.sendLocal(SERVICE.NAME.DB, "message", DB_CMD.MDM_DB, DB_CMD.SUB_UPDATE_ROOM_SERVER_INFOS, v)
+        skyhelper.sendLocal(SERVICE_CONF.DB.NAME, "message", DB_CMD.MDM_DB, DB_CMD.SUB_UPDATE_ROOM_SERVER_INFOS, v)
     end
 
     return 0
