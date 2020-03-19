@@ -3,7 +3,7 @@ package.path = package.path .. ";./service/db_server/?.lua;"
 local skynet = require("skynet")
 local service = require("skynet.service")
 local database = require("database.database")
-local dbmanager = require("db_manager")
+local dbmgr = require("db_manager")
 require("skynet.manager")
 require("common.export")
 require("core.define")
@@ -41,7 +41,7 @@ function command.START(conf)
     
     command.running = true
 
-    dbmanager.start(command.servername)
+    dbmgr.start(command.servername)
 
     return 0
 end
@@ -50,7 +50,7 @@ end
 function command.STOP()
     command.running = false
     
-    dbmanager.stop()
+    dbmgr.stop()
     
     database.close(command.dbconn)
     command.dbconn = nil
@@ -66,7 +66,7 @@ function command.MESSAGE(mid, sid, content)
         skynet.error("unknown " .. command.servername .. " mid command")
     end
     -- 查询业务处理函数
-    return dbmanager.dispatch(command.dbconn, mid, sid, content)
+    return dbmgr.dispatch(command.dbconn, mid, sid, content)
 end
 
 local function dispatch()
