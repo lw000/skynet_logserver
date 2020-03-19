@@ -6,12 +6,10 @@ local config = {
     -- db配置
     db = {
         host = "127.0.0.1",
-        host_ = "192.168.0.102",
         port = 3306,
         database = "test",
         user = "root",
         password = "LEvi123!",
-        password_ = "lwstar",
     },
     --redis配置
     redis = {
