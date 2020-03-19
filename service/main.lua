@@ -10,12 +10,12 @@ skynet.start(
         skynet.newservice("debug_console", conf.debugPort)
         
          -- 1. LOG服务
-         local log_server = skynet.newservice("log_server")
-         local ret, err = skynet.call(log_server, "lua", "start")
-         if err ~= nil then
-             skynet.error(ret, err)
-             return
-         end
+        local log_server = skynet.newservice("log_server")
+        local ret, err = skynet.call(log_server, "lua", "start")
+        if err ~= nil then
+            skynet.error(ret, err)
+            return
+        end
 
         -- 2. DB服务器
         local db_server = skynet.newservice("db_server")
