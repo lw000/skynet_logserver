@@ -53,9 +53,6 @@
 #### ├── match_server                  -- 匹配服务
 #### │   ├── match_logic.lua
 #### │   └── match_server.lua
-#### ├── network
-#### │   ├── packet.lua
-#### │   └── ws.lua
 #### ├── redis_server                  -- REDIS服务
 #### │   ├── redis_logic.lua
 #### │   ├── redis_manager.lua
