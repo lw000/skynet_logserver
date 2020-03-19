@@ -1,18 +1,25 @@
 # skynet_logserver
-日志服务器：
-说明：
-1. 该程序结构使用单节点部署，内部包含（匹配服务，房间服务，日志服务，REDIS服务，DB服务）子服务。
-2. 匹配服务，房间服务，模拟日志数据，发送到log服务，log服务根据业务类型，转发到redis服务或者db服务。
-3. redis服务负责数据存储到redis。
-4. db服务负责数据存储到到mysql。
 
-部署：
-1. 导入数据库脚本sql/test.sql
-2. 安装redis
+# 日志服务器：
 
-main.lua            单节点服务启动入口
+## 说明
+    1. 该程序单节点部署，内部包含（匹配服务，房间服务，日志服务，REDIS服务，DB服务）子服务。
+    2. 匹配服务，房间服务，模拟日志数据发送到log服务，log服务根据业务类型，转发到redis服务或者db服务。
+    3. redis服务负责数据存储到redis, redis服务定时把（匹配服务，房间服务）数据同步到DB服务。
+    4. db服务负责数据存储到到mysql。
 
-代码结构
+## 部署
+    1. 安装redis
+    2. 导入数据库脚本sql/test.sql
+
+##  启动
+    cd skynet_logserver
+    bin/skynet conf/config
+
+## 代码结构
+
+##### 1. main.lua     -- 单节点服务启动入口
+
 ##### .
 ##### ├── common
 ##### │   ├── core.lua
