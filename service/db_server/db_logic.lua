@@ -7,17 +7,13 @@ local logic = {
 }
 
 -- 获取用户信息
-function logic.onQueryUserInfo(dbconn, content)
+function logic.onQueryUserInfo(dbconn, userId)
     assert(dbconn ~= nil)
-    assert(content ~= nil)
-    assert(content.userId ~= nil and type(content.userId) == "number")
-
-    if content == nil or content.userId == nil then
-        return nil, "参数错误"
-    end
+    assert(userId ~= nil and type(userId) == "number")
+    assert(userId > 0)
 
     local sql = [[select * from user where userId=?;]]
-    local result, err = database.execute(dbconn, sql, content.userId)
+    local result, err = database.execute(dbconn, sql, userId)
     if err ~= nil then
         skynet.error(err)
         return nil, err
