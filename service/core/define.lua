@@ -11,27 +11,6 @@ SERVICE_CONF = {
     LOG =   { TYPE= 6, NAME= ".log_server",   DESC= "日志服务器" },
 }
 
-SERVICE = {
-    -- 服务器类型
-    TYPE = {
-        LOGON   = 1,    -- 登录服务
-        MATCH   = 2,    -- 匹配服务
-        ROOM    = 3,    -- 房间服务
-        REDIS   = 4,    -- REDIS缓存服务
-        DB      = 5,    -- DB服务
-        LOG     = 6,    -- 日志服务
-    },
-    -- 服务名字
-    NAME = {
-        LOGON   = ".logon_server",      -- 登录服务
-        MATCH   = ".match_server",      -- 匹配服务
-        ROOM    = ".room_server",       -- 房间服务
-        REDIS   = ".redis_server",      -- REDIS缓存服务
-        DB      = ".db_server",         -- DB服务
-        LOG     = ".log_server",        -- 日志服务
-    }
-}
-
 -- 服务内部协议指令
 -------------------------------------------------------------------------------------
 -- DB服务·命令
