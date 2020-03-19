@@ -18,9 +18,19 @@
     cd skynet_logserver
     bin/skynet conf/config
 
-## 代码结构
+## 代码基本说明
+    1. main.lua 单节点服务启动入口
+    2. common 文件夹公共函数库
+    3. config 配置文件夹
+    4. core下配置服务类型，服务名字，已经服务间指令
+    5. db_server文件夹下存放数据服务代码
+    6. log_server文件夹下存放日志服务代码
+    7. match_server文件夹下存放匹配服务代码
+    8. redis_server文件夹下存放缓存服务代码
+    9. room_server文件夹下存放房间服务代码
+    10. skycommon文件夹下存放发送消息代码
 
-#### 1. main.lua     -- 单节点服务启动入口
+## 代码结构
 
 #### .
 #### ├── common
