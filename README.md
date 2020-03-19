@@ -9,10 +9,11 @@
     4. db服务负责数据存储到到mysql。
 
 ## 部署
-    1. 安装redis
-    2. 安装mysql
-    3. 导入数据库脚本sql/test.sql
-    4. config/config.lua 修改配置数据库和redis的相关配置
+    1. centos x64位系统
+    2. 安装redis
+    3. 安装mysql
+    4. 导入数据库脚本sql/test.sql
+    5. config/config.lua 修改配置数据库和redis的相关配置
 
 ##  启动
     cd skynet_logserver
