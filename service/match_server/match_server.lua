@@ -105,15 +105,15 @@ function command._uploadServerInfo()
     end)
 
     -- 查询用户信息
-    skynet.fork(function()
-        skynet.error("查询用户信息")
-        local result, err = logic.queryUserInfo(10000)
-        if err == nil then
-            dump(result, "用户信息")
-        else
-            skynet.error(err)
-        end
-    end)
+    -- skynet.fork(function()
+    --     skynet.error("查询用户信息")
+    --     local result, err = logic.queryUserInfo(10000)
+    --     if err == nil then
+    --         dump(result, "用户信息")
+    --     else
+    --         skynet.error(err)
+    --     end
+    -- end)
 end
 
 local function dispatch()
